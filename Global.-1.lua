@@ -1,3 +1,4 @@
+-- 初始化
 function init()
     -- 玩家颜色列表
     playerColorList      = getSeatedPlayers()
@@ -37,10 +38,16 @@ function init()
 
     -- 袋子
     bag1Doubloon         = getObjectFromGUID("6b6fac")
+    bag5Doubloon         = getObjectFromGUID("6a88ba")
     bagPlantation        = getObjectFromGUID("0b7761")
 
     -- 文本
-    text                 = getObjectFromGUID("986d33")
+    textColonist         = getObjectFromGUID("986d33")
+    textYellow           = getObjectFromGUID()
+    textBlue             = getObjectFromGUID()
+    textWhite            = getObjectFromGUID()
+    textOrange           = getObjectFromGUID()
+    textBrown            = getObjectFromGUID()
 
 
     -- 运输船列表
@@ -53,12 +60,12 @@ end
 
 -- 建筑列表
 buildingList = {
-    smallIndigoPlant = { circle = 1, score = 0 },
-    indigoPlant      = { circle = 3, score = 0 },
-    smallSugarMill   = { circle = 1, score = 0 },
-    sugarMill        = { circle = 3, score = 0 },
-    tobaccoStorage   = { circle = 3, score = 0 },
-    coffeeRoaster    = { circle = 2, score = 0 }
+    SmallIndigoPlant = { circle = 1, score = 0 },
+    IndigoPlant      = { circle = 3, score = 0 },
+    SmallSugarMill   = { circle = 1, score = 0 },
+    SugarMill        = { circle = 3, score = 0 },
+    TobaccoStorage   = { circle = 3, score = 0 },
+    CoffeeRoaster    = { circle = 2, score = 0 }
 }
 
 -- 角色初始坐标
@@ -73,38 +80,63 @@ rolePos = {
     Captain     = { -11.25, -2.97, 10.36 }
 }
 
--- 玩家区域坐标
-playerPos = {
+-- 玩家列表
+playerList = {
     Yellow = {
+        pay      = nil,
         role     = { -47.00, -2.97, -8.00 },
+        text     = textYellow,
+        board    = playerBoardYellow,
         assign   = { -51.00, -2.97, -8.00 },
         governor = { -44.00, -2.97, -8.00 },
-        building = { 0, 0, 0 }
+        building = nil
     },
     Blue   = {
+        pay      = nil,
         role     = { -25.00, -2.97, -8.00 },
+        text     = textBlue,
+        board    = playerBoardBlue,
         assign   = { -29.00, -2.97, -8.00 },
         governor = { -22.00, -2.97, -8.00 },
-        building = { 0, 0, 0 }
+        building = nil
     },
     White  = {
+        pay      = nil,
         role     = { -3.06, -2.97, -7.99 },
+        text     = textWhite,
+        board    = playerBoardWhite,
         assign   = { -7.06, -2.97, -8.00 },
         governor = { -0.06, -2.97, -7.99 },
-        building = { 0, 0, 0 }
+        building = nil
     },
     Orange = {
+        pay      = nil,
         role     = { 19.00, -2.97, -8.00 },
+        text     = textOrange,
+        board    = playerBoardOrange,
         assign   = { 15.00, -2.97, -8.00 },
         governor = { 22.00, -2.97, -8.00 },
-        building = { 0, 0, 0 }
+        building = nil
     },
     Brown  = {
+        pay      = nil,
         role     = { 41.00, -2.97, -8.00 },
+        text     = textBrown,
+        board    = playerBoardBrown,
         assign   = { 37.00, -2.97, -8.00 },
         governor = { 44.00, -2.97, -8.00 },
-        building = { 0, 0, 0 }
+        building = nil
     }
+}
+
+-- 货物列表
+goodsList = {
+    { tag = "None",    color = "Grey" },
+    { tag = "Corn",    color = "Yellow" },
+    { tag = "Indigo",  color = "Blue" },
+    { tag = "Sugar",   color = "White" },
+    { tag = "Tobacco", color = "Brown" },
+    { tag = "Coffee",  color = "Black" }
 }
 
 -- 加载
@@ -115,7 +147,6 @@ function onLoad()
     governor.createButton({
         click_function = "setup",
         position = { 0, 0.1, 0.75 },
-        rotation = { 0, 0, 0 },
         width = 150,
         font_size = 50,
         label = "setup"
@@ -124,7 +155,6 @@ function onLoad()
     prospector1.createButton({
         click_function = "prospector",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -132,7 +162,6 @@ function onLoad()
     prospector2.createButton({
         click_function = "prospector",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -140,7 +169,6 @@ function onLoad()
     captain.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -148,7 +176,6 @@ function onLoad()
     trader.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -156,14 +183,12 @@ function onLoad()
     mayor.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
     mayor.createButton({
         click_function = "assignColonists",
         position       = { -0.2, 0.1, 0.25 },
-        rotation       = { 0, 0, 0 },
         width          = 175,
         font_size      = 50,
         label          = "assign"
@@ -171,7 +196,6 @@ function onLoad()
     mayor.createButton({
         click_function = "supplyColonists",
         position       = { 0.2, 0.1, 0.25 },
-        rotation       = { 0, 0, 0 },
         width          = 175,
         font_size      = 50,
         label          = "supply"
@@ -180,23 +204,25 @@ function onLoad()
     craftsman.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
     craftsman.createButton({
         click_function = "produce",
         position       = { 0, 0.1, 0.30 },
-        rotation       = { 0, 0, 0 },
         width          = 175,
         font_size      = 50,
         label          = "produce"
+    })
+    craftsman.createButton({
+        click_function = "nextGoods",
+        position       = { 0.1, 0.1, 0.30 },
+        color          = Color.Yellow
     })
     -- 开拓者
     settler.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -204,7 +230,6 @@ function onLoad()
     builder.createButton({
         click_function = "take",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "take"
     })
@@ -212,7 +237,6 @@ function onLoad()
     playerBoardYellow.createButton({
         click_function = "pay",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "pay"
     })
@@ -220,7 +244,6 @@ function onLoad()
     playerBoardBlue.createButton({
         click_function = "pay",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "pay"
     })
@@ -228,7 +251,6 @@ function onLoad()
     playerBoardWhite.createButton({
         click_function = "pay",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "pay"
     })
@@ -236,7 +258,6 @@ function onLoad()
     playerBoardOrange.createButton({
         click_function = "pay",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "pay"
     })
@@ -244,11 +265,10 @@ function onLoad()
     playerBoardBrown.createButton({
         click_function = "pay",
         position       = { 0.5, 0.1, -0.9 },
-        rotation       = { 0, 0, 0 },
         font_size      = 50,
         label          = "pay"
     })
-    -- 定时函数：文本显示殖民船殖民数
+    -- 定时函数：显示殖民船殖民数
     Wait.time(
         function()
             local objList = {}
@@ -257,7 +277,16 @@ function onLoad()
                     table.insert(objList, obj)
                 end
             end
-            text.setValue(tostring(#objList))
+            textColonist.setValue(tostring(#objList))
+        end,
+        1, -1
+    )
+    -- 定时函数：显示玩家分数&财富
+    Wait.time(
+        function()
+            for _, color in ipairs(playerColorList) do
+                calcScoreAndMoney(color)
+            end
         end,
         1, -1
     )
@@ -274,7 +303,7 @@ end
 
 -- 获取区域中指定标签对象列表
 function getObjListFromZoneWithTag(zone, tag)
-    objList = {}
+    local objList = {}
     for _, obj in pairs(zone.getObjects(true)) do
         if obj.hasTag(tag) then
             table.insert(objList, obj)
@@ -287,7 +316,7 @@ end
 function prospector(obj, color)
     take(obj, color)
     -- 勘探者特权
-    bag1Doubloon.takeObject({ position = playerPos[color].assign })
+    bag1Doubloon.takeObject({ position = playerList[color].assign })
 end
 
 -- 拿取角色
@@ -296,7 +325,7 @@ function take(obj, color)
     obj.removeTag("role remain")
     obj.addTag("role select")
     -- 移动 role 至玩家角色区
-    obj.setPositionSmooth(playerPos[color].role, false, true)
+    obj.setPositionSmooth(playerList[color].role, false, true)
     -- 碰撞检测
     local hitList = Physics.cast({
         origin       = obj.getPosition(),
@@ -305,7 +334,7 @@ function take(obj, color)
     })
     -- 移动 hitList 至玩家分配区
     for _, obj in ipairs(hitList) do
-        obj.hit_object.setPositionSmooth(playerPos[color].assign, false, true)
+        moveObjToPos(obj.hit_object, playerList[color].assign)
     end
 end
 
@@ -330,13 +359,11 @@ function setup(obj)
     bagSugar.setName("Sugar")
     bagTobacco.setName("Tobacco")
     bagCoffee.setName("Coffee")
-    -- 删除 setup 按钮
-    obj.removeButton(0)
-    -- 创建 next 按钮
-    obj.createButton({
-        click_function = "next",
+    -- 编辑按钮
+    obj.editButton({
+        index          = 0,
+        click_function = "nextAnnual",
         position       = { 0, 0.1, 0.75 },
-        rotation       = { 0, 0, 0 },
         width          = 150,
         font_size      = 50,
         label          = "next"
@@ -394,13 +421,16 @@ end
 
 -- 补充殖民（玩家数）至指定坐标附近
 function supplyColonistsWithNum(num)
+    if #bagColonist.getObjects() < num then
+        return true
+    end
     for i = 1, num do
-        randomMove(bagColonist, colonistHouse.getPosition())
+        takeObjToPos(bagColonist, colonistHouse.getPosition())
     end
 end
 
 -- 从容器中取出对象至指定坐标附近
-function randomMove(container, pos)
+function takeObjToPos(container, pos)
     container.takeObject({
         position = {
             pos.x + math.random() - 1,
@@ -410,10 +440,21 @@ function randomMove(container, pos)
     })
 end
 
+-- 移动对象至指定坐标附近
+function moveObjToPos(obj, pos)
+    obj.setPositionSmooth(
+        {
+            pos.x + math.random() - 1,
+            math.random() + 1,
+            pos.z + math.random() - 1
+        },
+        false, true)
+end
+
 -- 补充农场
 function supplyPlantation()
     if #bagPlantation.getObjects() < #playerColorList + 1 then
-        recycle(getObjectsWithTag("chip ignore"))
+        recycle(bagPlantation, getObjectsWithTag("chip ignore"))
     end
 
     local num = math.min(#bagPlantation.getObjects(), #playerColorList + 1)
@@ -428,10 +469,10 @@ function supplyPlantation()
 end
 
 -- 下一年
-function next(obj, currColor)
+function nextAnnual(obj, currColor)
     -- 移动 governor 至下一位玩家
     local nextColor = getNextColor(currColor)
-    obj.setPositionSmooth(playerPos[nextColor].governor, false, true)
+    obj.setPositionSmooth(playerList[nextColor].governor, false, true)
     -- role remain 标签对象设置 1 doubloon
     for _, obj in ipairs(getObjectsWithTag("role remain")) do
         bag1Doubloon.takeObject({
@@ -489,34 +530,23 @@ end
 
 -- 获取运输船对象列表
 function getObjListWithShip(ship)
-    local objList = {}
     -- 非空校验
     if ship == nil then
-        return objList
+        return {}
     end
     -- 碰撞检测
     local hitList = getHitListByBoxCast(ship.getPosition(), { 4, 2, 2 })
-    -- 通过标签过滤对象
-    for _, element in ipairs(hitList) do
-        if element.hit_object.hasTag("goods") then
-            table.insert(objList, element.hit_object)
-        end
-    end
-    return objList
+    -- 标签过滤
+    return getObjListFromHitList(hitList, "goods")
 end
 
 -- 获取交易所对象列表
 function getObjListWithTrade(obj)
-    local objList = {}
     local hitList = getHitListByBoxCast(obj.getPosition(), { 2, 2, 4 })
-    for _, element in ipairs(hitList) do
-        if element.hit_object.hasTag("goods") then
-            table.insert(objList, element.hit_object)
-        end
-    end
-    return objList
+    return getObjListFromHitList(hitList, "goods")
 end
 
+-- 碰撞检测获取碰撞列表
 function getHitListByBoxCast(pos, size)
     local hitList = Physics.cast({
         origin       = pos,
@@ -526,7 +556,11 @@ function getHitListByBoxCast(pos, size)
         max_distance = 1,
         debug        = true
     })
-    return hitList
+    local objList = {}
+    for _, hitObj in ipairs(hitList) do
+        table.insert(objList, hitObj.hit_object)
+    end
+    return objList
 end
 
 -- 获取下一位玩家颜色
@@ -542,12 +576,12 @@ end
 function assignColonists(obj, color)
     -- 市长特权
     if #bagColonist.getObjects() ~= 0 then
-        bagColonist.takeObject({ position = playerPos[color].assign })
+        bagColonist.takeObject({ position = playerList[color].assign })
     end
     -- 分配殖民
     local objList = getObjListFromZoneWithTag(colonistShipZone, "colonists")
     for _, obj in ipairs(objList) do
-        obj.setPositionSmooth(playerPos[color].assign, false, true)
+        obj.setPositionSmooth(playerList[color].assign, false, true)
         color = getNextColor(color)
     end
 end
@@ -559,7 +593,9 @@ function supplyColonists()
     -- 差值 > 玩家数 ? 差值 : 玩家数
     local num = math.max(cnt.circles - cnt.colonists, #playerColorList)
     -- 补充殖民
-    supplyColonistsWithNum(num)
+    if supplyColonistsWithNum(num) then
+        print("game over!")
+    end
 end
 
 -- 计算全局建筑物空缺与殖民数量
@@ -582,7 +618,7 @@ function countCirclesAndColonistsWithColor(color)
             colonists = (colonists or 0) + 1
         end
         if obj.hasTag("building") then
-            circles = (circles or 0) + (buildingList[toCamelCase(obj.getName())].circle or 1)
+            circles = (circles or 0) + buildingList[string.gsub(obj.getName(), "%s", "")].circle
         end
     end
     return { circles = circles, colonists = colonists }
@@ -590,44 +626,122 @@ end
 
 -- 获取玩家建筑区对象列表
 function getObjListFromBuildWithColor(color)
-    return getHitListByBoxCast(playerPos[color].building, { 1, 1, 1 })
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].building, nil)
+    -- 标签过滤
+    local smallBuildList = getObjListFromHitList(hitList, "small building")
+    local largeBuildList = getObjListFromHitList(hitList, "large building")
+    return concatList(smallBuildList, largeBuildList)
+end
+
+-- 拼接表
+function concatList(a, b)
+    for _, obj in ipairs(b) do
+        table.insert(a, obj)
+    end
+    return a
 end
 
 -- 生产
 function produce(obj, color)
+    -- 工匠特权
+    for _, good in ipairs(goodsList) do
+        if obj.hasTag(good.tag) then
+            getBagWithName("bag" .. tag)
+        end
+    end
     for i = 1, #playerColorList do
         -- 计算当前玩家生效玉米数量
         -- 计算当前玩家生效靛蓝数量
         -- 计算当前玩家生效砂糖数量
         -- 计算当前玩家生效烟草数量
         -- 计算当前玩家生效咖啡数量
-        -- 分配玉米
-        -- 分配靛蓝
-        -- 分配砂糖
-        -- 分配烟草
-        -- 分配咖啡
+        -- 分配玉米 math.min(供应量, 剩余量)
+        -- 分配靛蓝 math.min(供应量, 剩余量)
+        -- 分配砂糖 math.min(供应量, 剩余量)
+        -- 分配烟草 math.min(供应量, 剩余量)
+        -- 分配咖啡 math.min(供应量, 剩余量)
         color = getNextColor(color)
     end
 end
 
--- 回收 doubloon
-function pay()
+-- 计算指定玩家生效流水数量
+function calcPlantationAndBuildingWithColonist(color, plantationTag, buildingTag)
+    local plantationNum, buildingNum
+    -- 碰撞检测
+    -- 农场标签过滤
+    -- 循环碰撞检测并计数
+    plantationNum = (plantationNum or 0) + 1
+    -- 建筑标签过滤
+    -- 循环碰撞检测并计数
+    buildingNum = (buildingNum or 0) + 1
 
+    return math.min(plantationNum, buildingNum)
+end
+
+-- 回收 doubloon
+function pay(obj, color)
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].pay, { 1, 1, 1 })
+    -- 回收资源
+    recycle(bag1Doubloon, getObjListFromHitList(hitList, "1Doubloon"))
+    recycle(bag5Doubloon, getObjListFromHitList(hitList, "5Doubloon"))
+end
+
+-- 通过标签过滤碰撞列表
+function getObjListFromHitList(hitList, tag)
+    local objList = {}
+    for _, hit in ipairs(hitList) do
+        if hit.hasTag(tag) then
+            table.insert(objList, hit)
+        end
+    end
+    return objList
 end
 
 -- 计算分数&财富
-function calcScoreAndMoney()
-
+function calcScoreAndMoney(color)
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), nil)
+    -- 标签过滤并计算分数
+    local score = #getObjListFromHitList(hitList, "1VP") + #getObjListFromHitList(hitList, "5VP") * 5
+    -- 标签过滤并计算财富
+    local money = #getObjListFromHitList(hitList, "1Doubloon") + #getObjListFromHitList(hitList, "5Doubloon") * 5
+    -- 文本显示
+    playerList[color].text.setValue("score: " .. tostring(score) .. "\n" .. "money: " .. tostring(money))
 end
 
--- 驼峰命名法
-function toCamelCase(str)
-
+-- 下一种货物
+function nextGoods(obj)
+    for i = 1, #goodsList do
+        if obj.hasTag(goodsList[i].tag) then
+            -- 替换标签
+            obj.removeTag(goodsList[i].tag)
+            obj.addTag(goodsList[i % #goodsList + 1].tag)
+            -- 编辑按钮
+            obj.editButton({
+                index          = 2,
+                click_function = "nextGoods",
+                position       = { 0.1, 0.1, 0.30 },
+                color          = Color.fromString(goodsList[i % #goodsList + 1].color)
+            })
+        end
+    end
 end
 
 -- 判断是否为农场区
 function isPlantationZone(zone)
-    if zone ~= plantationZoneYellow and zone ~= plantationZoneBlue and zone ~= plantationZoneOrange and zone ~= plantationZoneWhite and zone ~= plantationZoneBrown then
+    if
+        zone ~= plantationZoneYellow
+        and
+        zone ~= plantationZoneBlue
+        and
+        zone ~= plantationZoneOrange
+        and
+        zone ~= plantationZoneWhite
+        and
+        zone ~= plantationZoneBrown
+    then
         return false
     else
         return true
