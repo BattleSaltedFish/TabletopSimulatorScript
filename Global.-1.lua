@@ -43,11 +43,60 @@ function init()
 
     -- 文本
     textColonist         = getObjectFromGUID("986d33")
-    textYellow           = getObjectFromGUID()
-    textBlue             = getObjectFromGUID()
-    textWhite            = getObjectFromGUID()
-    textOrange           = getObjectFromGUID()
-    textBrown            = getObjectFromGUID()
+    textYellow           = getObjectFromGUID("b7f4ff")
+    textBlue             = getObjectFromGUID("7b362a")
+    textWhite            = getObjectFromGUID("dd59c9")
+    textOrange           = getObjectFromGUID("168ad7")
+    textBrown            = getObjectFromGUID("6d94e3")
+
+    -- 玩家列表
+    playerList           = {
+        Yellow = {
+            pay      = { -38.50, -2.97, -7.50 },
+            role     = { -47.00, -2.97, -8.00 },
+            text     = textYellow,
+            board    = playerBoardYellow,
+            assign   = { -51.00, -2.97, -8.00 },
+            governor = { -44.00, -2.97, -8.00 },
+            building = { -47.10, -2.97, -19.80 }
+        },
+        Blue   = {
+            pay      = { -16.50, -2.97, -7.50 },
+            role     = { -25.00, -2.97, -8.00 },
+            text     = textBlue,
+            board    = playerBoardBlue,
+            assign   = { -29.00, -2.97, -8.00 },
+            governor = { -22.00, -2.97, -8.00 },
+            building = { -25.10, -2.97, -19.80 }
+        },
+        White  = {
+            pay      = { 5.50, -2.97, -7.50 },
+            role     = { -3.06, -2.97, -7.99 },
+            text     = textWhite,
+            board    = playerBoardWhite,
+            assign   = { -7.06, -2.97, -8.00 },
+            governor = { -0.06, -2.97, -7.99 },
+            building = { -3.10, -2.97, -19.80 }
+        },
+        Orange = {
+            pay      = { 27.50, -2.97, -7.50 },
+            role     = { 19.00, -2.97, -8.00 },
+            text     = textOrange,
+            board    = playerBoardOrange,
+            assign   = { 15.00, -2.97, -8.00 },
+            governor = { 22.00, -2.97, -8.00 },
+            building = { 18.90, -2.97, -19.80 }
+        },
+        Brown  = {
+            pay      = { 49.50, -2.97, -7.50 },
+            role     = { 41.00, -2.97, -8.00 },
+            text     = textBrown,
+            board    = playerBoardBrown,
+            assign   = { 37.00, -2.97, -8.00 },
+            governor = { 44.00, -2.97, -8.00 },
+            building = { 40.90, -2.97, -19.80 }
+        }
+    }
 
 
     -- 运输船列表
@@ -78,55 +127,6 @@ rolePos = {
     Mayor       = { -11.25, -2.97, 5.67 },
     Settler     = { -11.25, -2.92, 0.98 },
     Captain     = { -11.25, -2.97, 10.36 }
-}
-
--- 玩家列表
-playerList = {
-    Yellow = {
-        pay      = nil,
-        role     = { -47.00, -2.97, -8.00 },
-        text     = textYellow,
-        board    = playerBoardYellow,
-        assign   = { -51.00, -2.97, -8.00 },
-        governor = { -44.00, -2.97, -8.00 },
-        building = nil
-    },
-    Blue   = {
-        pay      = nil,
-        role     = { -25.00, -2.97, -8.00 },
-        text     = textBlue,
-        board    = playerBoardBlue,
-        assign   = { -29.00, -2.97, -8.00 },
-        governor = { -22.00, -2.97, -8.00 },
-        building = nil
-    },
-    White  = {
-        pay      = nil,
-        role     = { -3.06, -2.97, -7.99 },
-        text     = textWhite,
-        board    = playerBoardWhite,
-        assign   = { -7.06, -2.97, -8.00 },
-        governor = { -0.06, -2.97, -7.99 },
-        building = nil
-    },
-    Orange = {
-        pay      = nil,
-        role     = { 19.00, -2.97, -8.00 },
-        text     = textOrange,
-        board    = playerBoardOrange,
-        assign   = { 15.00, -2.97, -8.00 },
-        governor = { 22.00, -2.97, -8.00 },
-        building = nil
-    },
-    Brown  = {
-        pay      = nil,
-        role     = { 41.00, -2.97, -8.00 },
-        text     = textBrown,
-        board    = playerBoardBrown,
-        assign   = { 37.00, -2.97, -8.00 },
-        governor = { 44.00, -2.97, -8.00 },
-        building = nil
-    }
 }
 
 -- 货物列表
@@ -216,8 +216,10 @@ function onLoad()
     })
     craftsman.createButton({
         click_function = "nextGoods",
-        position       = { 0.1, 0.1, 0.30 },
-        color          = Color.Yellow
+        position       = { 0.3, 0.1, 0.30 },
+        color          = Color.Grey,
+        hover_color    = Color.Grey,
+        press_color    = Color.Grey
     })
     -- 开拓者
     settler.createButton({
@@ -236,35 +238,35 @@ function onLoad()
     -- 玩家Yellow
     playerBoardYellow.createButton({
         click_function = "pay",
-        position       = { 0.5, 0.1, -0.9 },
+        position       = { 1.55, 0.1, -1.1 },
         font_size      = 50,
         label          = "pay"
     })
     -- 玩家Blue
     playerBoardBlue.createButton({
         click_function = "pay",
-        position       = { 0.5, 0.1, -0.9 },
+        position       = { 1.55, 0.1, -1.1 },
         font_size      = 50,
         label          = "pay"
     })
     -- 玩家White
     playerBoardWhite.createButton({
         click_function = "pay",
-        position       = { 0.5, 0.1, -0.9 },
+        position       = { 1.55, 0.1, -1.1 },
         font_size      = 50,
         label          = "pay"
     })
     -- 玩家Orange
     playerBoardOrange.createButton({
         click_function = "pay",
-        position       = { 0.5, 0.1, -0.9 },
+        position       = { 1.55, 0.1, -1.1 },
         font_size      = 50,
         label          = "pay"
     })
     -- 玩家Brown
     playerBoardBrown.createButton({
         click_function = "pay",
-        position       = { 0.5, 0.1, -0.9 },
+        position       = { 1.55, 0.1, -1.1 },
         font_size      = 50,
         label          = "pay"
     })
@@ -281,15 +283,15 @@ function onLoad()
         end,
         1, -1
     )
-    -- 定时函数：显示玩家分数&财富
-    Wait.time(
-        function()
-            for _, color in ipairs(playerColorList) do
-                calcScoreAndMoney(color)
-            end
-        end,
-        1, -1
-    )
+    -- -- 定时函数：显示玩家分数&财富
+    -- Wait.time(
+    --     function()
+    --         for _, color in ipairs(playerColorList) do
+    --             calcScoreAndMoney(color)
+    --         end
+    --     end,
+    --     1, -1
+    -- )
 end
 
 -- 对象进入区域触发函数
@@ -333,8 +335,8 @@ function take(obj, color)
         max_distance = 5
     })
     -- 移动 hitList 至玩家分配区
-    for _, obj in ipairs(hitList) do
-        moveObjToPos(obj.hit_object, playerList[color].assign)
+    for _, element in ipairs(hitList) do
+        moveObjToPos(element.hit_object, playerList[color].assign)
     end
 end
 
@@ -444,9 +446,9 @@ end
 function moveObjToPos(obj, pos)
     obj.setPositionSmooth(
         {
-            pos.x + math.random() - 1,
+            pos[1] + math.random() - 1,
             math.random() + 1,
-            pos.z + math.random() - 1
+            pos[3] + math.random() - 1
         },
         false, true)
 end
@@ -508,7 +510,7 @@ function nextAnnual(obj, currColor)
         recycleWithName(tradingHouseGoodsList)
     end
     -- 弃牌区坐标
-    local pos = { x = 0, y = 2, z = 0 }
+    local pos = { x = 20, y = 2, z = 10 }
     -- 清理农场
     for _, obj in ipairs(getObjectsWithTag("chip remain")) do
         obj.removeTag("chip remain")
@@ -519,9 +521,9 @@ function nextAnnual(obj, currColor)
     local plantationList = getObjectsWithTag("chip ignore")
     for i = 1, #plantationList do
         plantationList[i].setPositionSmooth({
-            pos.x + i % 5,
+            pos.x + i % 5 * 2,
             pos.y,
-            pos.z - i / 5
+            pos.z - i / 5 * 2
         }, false, true)
     end
     -- 补充农场
@@ -553,7 +555,7 @@ function getHitListByBoxCast(pos, size)
         direction    = { 0, 1, 0 },
         type         = 3,
         size         = size,
-        max_distance = 1,
+        max_distance = 0,
         debug        = true
     })
     local objList = {}
@@ -594,7 +596,7 @@ function supplyColonists()
     local num = math.max(cnt.circles - cnt.colonists, #playerColorList)
     -- 补充殖民
     if supplyColonistsWithNum(num) then
-        print("game over!")
+        broadcastToAll("game over!", Color.White)
     end
 end
 
@@ -603,8 +605,8 @@ function countCirclesAndColonistsWithGlobal()
     local circles, colonists
     for _, color in ipairs(playerColorList) do
         local cnt = countCirclesAndColonistsWithColor(color)
-        circles = (circles or 0) + cnt.circles
-        colonists = (colonists or 0) + cnt.colonists
+        circles = (circles or 0) + (cnt.circles or 0)
+        colonists = (colonists or 0) + (cnt.colonists or 0)
     end
     return { circles = circles, colonists = colonists }
 end
@@ -617,7 +619,7 @@ function countCirclesAndColonistsWithColor(color)
         if obj.hasTag("colonist") then
             colonists = (colonists or 0) + 1
         end
-        if obj.hasTag("building") then
+        if obj.hasTag("small building") or obj.hasTag("large building") then
             circles = (circles or 0) + buildingList[string.gsub(obj.getName(), "%s", "")].circle
         end
     end
@@ -627,7 +629,7 @@ end
 -- 获取玩家建筑区对象列表
 function getObjListFromBuildWithColor(color)
     -- 碰撞检测
-    local hitList = getHitListByBoxCast(playerList[color].building, nil)
+    local hitList = getHitListByBoxCast(playerList[color].building, { 10.9, 5, 5 })
     -- 标签过滤
     local smallBuildList = getObjListFromHitList(hitList, "small building")
     local largeBuildList = getObjListFromHitList(hitList, "large building")
@@ -682,10 +684,10 @@ end
 -- 回收 doubloon
 function pay(obj, color)
     -- 碰撞检测
-    local hitList = getHitListByBoxCast(playerList[color].pay, { 1, 1, 1 })
+    local hitList = getHitListByBoxCast(playerList[color].pay, { 8, 8, 6 })
     -- 回收资源
-    recycle(bag1Doubloon, getObjListFromHitList(hitList, "1Doubloon"))
-    recycle(bag5Doubloon, getObjListFromHitList(hitList, "5Doubloon"))
+    recycle(bag1Doubloon, getObjListFromHitList(hitList, "Doubloon1"))
+    recycle(bag5Doubloon, getObjListFromHitList(hitList, "Doubloon5"))
 end
 
 -- 通过标签过滤碰撞列表
@@ -702,13 +704,13 @@ end
 -- 计算分数&财富
 function calcScoreAndMoney(color)
     -- 碰撞检测
-    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), nil)
+    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), { 20, 5, 20 })
     -- 标签过滤并计算分数
-    local score = #getObjListFromHitList(hitList, "1VP") + #getObjListFromHitList(hitList, "5VP") * 5
+    local score = #getObjListFromHitList(hitList, "VP1") + #getObjListFromHitList(hitList, "VP5") * 5
     -- 标签过滤并计算财富
-    local money = #getObjListFromHitList(hitList, "1Doubloon") + #getObjListFromHitList(hitList, "5Doubloon") * 5
+    local money = #getObjListFromHitList(hitList, "Doubloon1") + #getObjListFromHitList(hitList, "Doubloon5") * 5
     -- 文本显示
-    playerList[color].text.setValue("score: " .. tostring(score) .. "\n" .. "money: " .. tostring(money))
+    playerList[color].text.setValue("score: " .. tostring(score) .. "    " .. "money: " .. tostring(money))
 end
 
 -- 下一种货物
@@ -718,13 +720,17 @@ function nextGoods(obj)
             -- 替换标签
             obj.removeTag(goodsList[i].tag)
             obj.addTag(goodsList[i % #goodsList + 1].tag)
-            -- 编辑按钮
-            obj.editButton({
-                index          = 2,
+            -- 删除按钮
+            obj.removeButton(2)
+            -- 创建按钮
+            obj.createButton({
                 click_function = "nextGoods",
-                position       = { 0.1, 0.1, 0.30 },
-                color          = Color.fromString(goodsList[i % #goodsList + 1].color)
+                position       = { 0.3, 0.1, 0.30 },
+                color          = Color.fromString(goodsList[i % #goodsList + 1].color),
+                hover_color    = Color.fromString(goodsList[i % #goodsList + 1].color),
+                press_color    = Color.fromString(goodsList[i % #goodsList + 1].color)
             })
+            return
         end
     end
 end
