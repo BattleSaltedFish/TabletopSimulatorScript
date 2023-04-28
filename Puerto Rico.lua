@@ -1,1367 +1,751 @@
---[[
-If you're viewing this script as one big ugly file, you're going to have a less
-than ideal experience.
-Go here for instructions: https://github.com/denis-belanger/TTS_Splendor
---]]
-
--- Include Files
-----#include !\TTS_Splendor\Scripts\global
---// Splendor Scripted + Expandsion //--
--- Scripting by ZeekMaster and the following:
-   -- Original scripted game setup and points tracking by Mel from the Splendor - Scripted mod.
-   -- Original scritped gem token and card count tracking by Yossarian from the Splendor - Scripted++ mod.
-   -- Original scripted counting bowl by MrStump.
-   -- Original gem token containers with scripted counts and script for randomly selecting starting player by JuggePugge from the Splendor - Scripted mod.
-
--- Include Files
-----#include !\TTS_Splendor\Scripts\Setup\variables
---// Global constants //--
-tp1 = "3 Rubies 1 Diamond"
-tp2 = "2 Diamonds"
-tp3 = "3 Sapphires 1 Onyx"
-tp4 = "5 Emeralds and Noble"
-tp5 = "3 Onyx"
-
---// Global variables //--
-interactable = false -- Set the interactibility of components not used to play the game
-
--- Table for tracking the total points for each player from their zones and the 'Trading Posts' mat
-player_points = {
-    ["Blue"]   = {["mat_points"] = 0, ["tp_points"] = 0},
-    ["White"]  = {["mat_points"] = 0, ["tp_points"] = 0},
-    ["Red"]    = {["mat_points"] = 0, ["tp_points"] = 0},
-    ["Yellow"] = {["mat_points"] = 0, ["tp_points"] = 0}
-}
-
--- Table for tracking which trading posts have been established by each player
-established_trading_posts = {
-    ["Blue"]   = {[tp1] = false, [tp2] = false, [tp3] = false, [tp4] = false, [tp5] = false},
-    ["White"]  = {[tp1] = false, [tp2] = false, [tp3] = false, [tp4] = false, [tp5] = false},
-    ["Red"]    = {[tp1] = false, [tp2] = false, [tp3] = false, [tp4] = false, [tp5] = false},
-    ["Yellow"] = {[tp1] = false, [tp2] = false, [tp3] = false, [tp4] = false, [tp5] = false}
-}
-
--- Object GUIDs
-game_setup_mat_guid          = "8cdc9e"
-standard_table_mat_guid      = "473e0f"
-cities_table_mat_guid        = "70915c"
-orient_table_mat_guid        = "10771f"
-orient_cities_table_mat_guid = "e11789"
-trading_posts_mat_guid       = "34ff85"
-
-bag_guids = {
-    mats    = "9a1e1c",
-    decks   = "ecfa08",
-    nobles  = "ee4886",
-    cities  = "655960",
-    shields = "d7f8fa"
-}
-
-token_bag_guids = {
-    ["Diamond"]  = "111cd7",
-    ["Sapphire"] = "50b282",
-    ["Emerald"]  = "51688f",
-    ["Ruby"]     = "1bd146",
-    ["Onyx"]     = "705dce",
-    ["Gold"]     = "01c1ed"
-}
-
-stronghold_bag_guids = {
-    ["Blue"]   = "ea399c",
-    ["White"]  = "61911d",
-    ["Red"]    = "6b631d",
-    ["Yellow"] = "b1e88c"
-}
-
-deck_guids = {
-    ["Blue"]   = "c05462",
-    ["Yellow"] = "48108b",
-    ["Green"]  = "ec3336",
-    ["Red3"]   = "0e9845",
-    ["Red2"]   = "76a02e",
-    ["Red1"]   = "47f1bb"
-}
-
-gem_container_guids = {
-    ["Diamond"]  = "2ebfea",
-    ["Sapphire"] = "325fc4",
-    ["Emerald"]  = "02cff8",
-    ["Ruby"]     = "f450c1",
-    ["Onyx"]     = "38de5d",
-    ["Gold"]     = "233391"
-}
-
-shield_container_guids = {
-    ["Blue"]   = "d385df",
-    ["White"]  = "0b2c9f",
-    ["Red"]    = "1da440",
-    ["Yellow"] = "7171e5"
-}
-
-player_mat_guids = {
-    ["Blue"]   = "b98faf",
-    ["White"]  = "35bd67",
-    ["Red"]    = "fe9092",
-    ["Yellow"] = "0814ee"
-}
-
-point_counter_guids = {
-    ["Blue"]   = "a90d51",
-    ["White"]  = "bcd9a1",
-    ["Red"]    = "028532",
-    ["Yellow"] = "5c4474"
-}
-
-gem_counter_guids = {
-    ["Blue"] = {
-        ["Diamond"]  = "f5e0ae",
-        ["Sapphire"] = "453480",
-        ["Emerald"]  = "44309b",
-        ["Ruby"]     = "ea5957",
-        ["Onyx"]     = "6956c5",
-        ["Gold"]     = "eab3dc"
-    },
-    ["White"] = {
-        ["Diamond"]  = "b25136",
-        ["Sapphire"] = "ff59c1",
-        ["Emerald"]  = "600cc6",
-        ["Ruby"]     = "423516",
-        ["Onyx"]     = "a3017b",
-        ["Gold"]     = "f43c33"
-    },
-    ["Red"] = {
-        ["Diamond"]  = "d9e7cc",
-        ["Sapphire"] = "7cfca3",
-        ["Emerald"]  = "86cc35",
-        ["Ruby"]     = "322ab6",
-        ["Onyx"]     = "db7992",
-        ["Gold"]     = "5cf0e9"
-    },
-    ["Yellow"] = {
-        ["Diamond"]  = "ab3da5",
-        ["Sapphire"] = "69cf6c",
-        ["Emerald"]  = "0fc1f0",
-        ["Ruby"]     = "c57961",
-        ["Onyx"]     = "6cf826",
-        ["Gold"]     = "cf32cf"
-    }
-}
-
--- Game props GUIDs
-game_prop_guids = {
-    antique_table = "8861c8",
-    red_felt_top  = "4ee1f2",
-    table_strut1  = "363eb6",
-    table_strut2  = "555cc6"
-}
-
-counting_tray_guids = {
-    ["Blue"]   = "171997",
-    ["White"]  = "209493",
-    ["Red"]    = "67247c",
-    ["Yellow"] = "8b3b8c",
-}
-
--- Pre-loaded mats, tokens, and deck GUIDs
-pre_load_item_guids = {
-    pre_load_standard_table_mat        = "9e748d",
-    pre_load_standard_cities_table_mat = "a48d1a",
-    pre_load_orient_table_mat          = "8c291c",
-    pre_load_orient_cities_table_mat   = "ad172c",
-    pre_load_trading_posts_mat         = "143e1a",
-
-    pre_load_diamond  = "652977",
-    pre_load_emerald  = "89e34b",
-    pre_load_sapphire = "251698",
-    pre_load_ruby     = "dace18",
-    pre_load_onyx     = "be82d1",
-    pre_load_gold     = "6d84ee",
-
-    pre_load_blue_deck   = "366de5",
-    pre_load_yellow_deck = "e506bf",
-    pre_load_green_deck  = "1c6697",
-    pre_load_red3_deck   = "55ee31",
-    pre_load_red2_deck   = "e223a9",
-    pre_load_red1_deck   = "729357"
-}
-
--- Scripting zone GUIDs
-player_point_zone_guids = {
-    ["Blue"]   = "15d12c",
-    ["White"]  = "f3126c",
-    ["Red"]    = "418b97",
-    ["Yellow"] = "5361d0"
-}
-
---// Initialize scritpting zones //--
-function initializeZones()
-    -- Get the zones over each player mat
-    player_point_zones = {}
-    for player_color, guid in pairs(player_point_zone_guids) do
-        player_point_zones[player_color] = getObjectFromGUID(guid)
-    end
-
-    -- Create the tables for the deck, card, and 'Trading Posts' zones
-    deck_zones = {}
-    card_zones = {}
-    trading_posts_zones = {}
-end
-
---// Initialize game objects //--
-function initializeObjects()
-    -- Get the game setup map and set interactability
-    game_setup_mat = initializeObject(game_setup_mat_guid)
-
-    -- Get the rulebooks
-    base_rules       = getObjectFromGUID(base_rules_guid)
-    expansions_rules = getObjectFromGUID(expansion_rules_guid)
-
-    -- Get the bags used to store all game components and set position and interactability
-    bags = {}
-    for bag_name, guid in pairs(bag_guids) do
-        bags[bag_name] = initializeBag(guid)
-    end
-
-    token_bags = {}
-    for bag_name, guid in pairs(token_bag_guids) do
-        token_bags[bag_name] = initializeBag(guid)
-    end
-
-    stronghold_bags = {}
-    for bag_name, guid in pairs(stronghold_bag_guids) do
-        stronghold_bags[bag_name] = initializeBag(guid)
-    end
-
-    -- Get the player mats and counters and set interactability
-    player_mats = {}
-    for player_color, guid in pairs(player_mat_guids) do
-        player_mats[player_color] = initializeObject(guid)
-    end
-
-    point_counters = {}
-    for player_color, guid in pairs(point_counter_guids) do
-        point_counters[player_color] = initializeObject(guid)
-    end
-
-    gem_counters = {}
-    for player_color, gem_guids in pairs(gem_counter_guids) do
-        gem_counters[player_color] = {}
-        for gem_name, guid in pairs(gem_guids) do
-            gem_counters[player_color][gem_name] = initializeObject(guid)
-        end
-    end
-
-    -- Get the game props and pre-loaded mats, tokens, and decks and set their interactability
-    game_props = {}
-    for prop_name, guid in pairs(game_prop_guids) do
-        game_props[prop_name] = initializeObject(guid)
-    end
-
-    counting_trays = {}
-    for player_color, guid in pairs(counting_tray_guids) do
-        counting_trays[player_color] = initializeObject(guid)
-    end
-
-    pre_load_items = {}
-    for item_name, guid in pairs(pre_load_item_guids) do
-        pre_load_items[item_name] = initializeObject(guid)
-    end
-
-    -- Create the table for the decks
-    decks = {}
-end
-
---// Helper function that gets, moves, and locks bags in or out of view (returns bag)
-function initializeBag(guid)
-    local bag = getObjectFromGUID(guid)
-    local color = bag.getColorTint()
-    local position = bag.getPosition()
-
-    bag.interactable = interactable
-    if interactable then
-        color.a = 1
-        position.y = 10.00
-    else
-        color.a = 0
-        position.y = -10.00
-    end
-
-    bag.setColorTint(color)
-    bag.setPosition(position)
-
-    return bag
-end
-
---// Helper function that gets an object and locks it (returns object)
-function initializeObject(guid)
-    object = getObjectFromGUID(guid)
-
-    if object ~= nil then
-        object.interactable = interactable
-    end
-
-    return object
-end
-
---// Helper function that saves the necessary variables needed to restore a game in progress //--
-function saveGameInProgress()
-    -- Exit the function if the game setup mat exists
-    if game_setup_mat ~= nil then return end
-
-    local save_data = {
-        player_points = player_points,
-        established_trading_posts = established_trading_posts,
-        deck_zone_parameters = deck_zone_parameters,
-        card_zone_parameters = card_zone_parameters,
-        trading_posts_zone_parameters = trading_posts_zone_parameters,
-        strongholds_expansion_enabled = strongholds_expansion_enabled
-    }
-    -- Encode the table of saved data as a string
-    return JSON.encode(save_data)
-end
-
--- // Helper function that loads the necessary variables to restore a game in progress //--
-function loadGameInProgress(script_state)
-    -- Exit the function if the game setup mat exists
-    if game_setup_mat ~= nil then return end
-
-    -- Exit the function if there is no save data
-    if script_state == "" then return end
-
-    -- Decode the string of saved data as a table
-    save_data = JSON.decode(script_state)
-
-    player_points = save_data.player_points
-    established_trading_posts = save_data.established_trading_posts
-
-    deck_zone_parameters = save_data.deck_zone_parameters
-    card_zone_parameters = save_data.card_zone_parameters
-    trading_posts_zone_parameters = save_data.trading_posts_zone_parameters
-    strongholds_expansion_enabled = save_data.strongholds_expansion_enabled
-
-    createDeckScriptingZones()
-    createCardScriptingZones()
-
-    if trading_posts_zone_parameters ~= nil then
-        createTradingPostScriptingZones()
-    end
-
-    for deck_color, guid in pairs(deck_guids) do
-        deck = getObjectFromGUID(guid)
-        if deck ~= nil then
-            decks[deck_color] = deck
-        end
-    end
-
-    for player_color, zone in pairs(player_point_zones) do
-        Wait.frames(
-        function()
-            trackTotalGemTokens(zone)
-            if strongholds_expansion_enabled then
-                player_mats[player_color].editButton({index = 3, label = "●  ●  ●"})
-            end
-        end,
-        2
-        )
-    end
-end
-
-----#include !\TTS_Splendor\Scripts\Setup\variables
-----#include !\TTS_Splendor\Scripts\Setup\menu_selection_logic
--- Menu selection states
-player_count_setting            = "Auto"
-turns_enabled                   = false
-music_enabled                   = false
-trading_posts_expansion_enabled = false
-orient_expansion_enabled        = false
-cities_expansion_enabled        = false
-strongholds_expansion_enabled   = false
-
--- Menu button settings
-setup_button_color          = {1, 1, 1}
-selected_setup_button_color = {0.376, 0.510, 0.133}
-setup_button_width          = 2350
-setup_button_height         = 600
-
---// Set the player count based on the selected menu button option //--
-function changePlayerCountSetting()
-    local button_index = 2
-    local button_parameters = {}
-    button_parameters.index = button_index
-    player_count_setting = game_setup_mat.getButtons()[3].label
-
-    if player_count_setting == "Auto" then
-        player_count_setting = "2"
-        number_of_players = 2
-    elseif player_count_setting == "2" then
-        player_count_setting = "3"
-        number_of_players = 3
-    elseif player_count_setting == "3" then
-        player_count_setting = "4"
-        number_of_players = 4
-    else
-        player_count_setting = "Auto"
-        number_of_players = -1
-    end
-    button_parameters.label = player_count_setting
-    game_setup_mat.editButton(button_parameters)
-end
-
---// Enable turns if the button is enabled //--
-function enableTurns()
-    local button_index = 4
-
-    if turns_enabled then
-        turns_enabled = false
-        game_setup_mat.editButton({index = button_index, label = "Off", color = setup_button_color})
-    else
-        turns_enabled = true
-        game_setup_mat.editButton({index = button_index, label = "On", color = selected_setup_button_color})
-    end
-end
-
---// Enable music if the button is enabled //--
-function enableMusic()
-    local button_index = 6
-
-    if music_enabled then
-        music_enabled = false
-        game_setup_mat.editButton({index = button_index, label = "Off", color = setup_button_color})
-    else
-        music_enabled = true
-        game_setup_mat.editButton({index = button_index, label = "On", color = selected_setup_button_color})
-    end
-end
-
---// Enable the 'Trading Posts' expansion if the button is enabled //--
-function enableTradingPostsExpansion()
-    local button_index = 8
-    local cities_top_button_index = button_index + 3
-    local cities_bottom_button_index = button_index + 4
-
-    if trading_posts_expansion_enabled then
-        trading_posts_expansion_enabled = false
-        game_setup_mat.editButton({index = button_index, color = setup_button_color})
-        game_setup_mat.editButton({index = cities_top_button_index, width = setup_button_width, height = setup_button_height})
-        game_setup_mat.editButton({index = cities_bottom_button_index, width = 0, height = 0})
-    else
-        trading_posts_expansion_enabled = true
-        game_setup_mat.editButton({index = button_index, color = selected_setup_button_color})
-        game_setup_mat.editButton({index = cities_top_button_index, width = 0, height = 0})
-        game_setup_mat.editButton({index = cities_bottom_button_index, width = setup_button_width, height = setup_button_height})
-    end
-end
-
---// Enable the 'Orient' expansion if the button is enabled //--
-function enableOrientExpansion()
-    local button_index = 10
-
-    if orient_expansion_enabled then
-        orient_expansion_enabled = false
-        game_setup_mat.editButton({index = button_index, color = setup_button_color})
-    else
-        orient_expansion_enabled = true
-        game_setup_mat.editButton({index = button_index, color = selected_setup_button_color})
-    end
-end
-
---// Enable the 'Cities' expansion if the button is enabled //--
-function enableCitiesExpansion()
-    local button_index = 11
-    local tp_top_button_index = button_index - 3
-    local tp_bottom_button_index = button_index - 2
-
-    if cities_expansion_enabled then
-        cities_expansion_enabled = false
-        game_setup_mat.editButton({index = button_index, color = setup_button_color})
-        game_setup_mat.editButton({index = tp_top_button_index, width = setup_button_width, height = setup_button_height})
-        game_setup_mat.editButton({index = tp_bottom_button_index, width = 0, height = 0})
-    else
-        cities_expansion_enabled = true
-        game_setup_mat.editButton({index = button_index, color = selected_setup_button_color})
-        game_setup_mat.editButton({index = tp_top_button_index, width = 0, height = 0})
-        game_setup_mat.editButton({index = tp_bottom_button_index, width = setup_button_width, height = setup_button_height})
-    end
-end
-
---// Enable the 'Strongholds' expansion if the button is enabled //--
-function enableStrongholdsExpansion()
-    local button_index = 13
-
-    if strongholds_expansion_enabled then
-        strongholds_expansion_enabled = false
-        game_setup_mat.editButton({index = button_index, color = setup_button_color})
-    else
-        strongholds_expansion_enabled = true
-        game_setup_mat.editButton({index = button_index, color = selected_setup_button_color})
-    end
-end
-
-----#include !\TTS_Splendor\Scripts\Setup\menu_selection_logic
-----#include !\TTS_Splendor\Scripts\Setup\object_locations
--- Static object locations
-shield_container_placement = {
-    positions = {
-        ["Blue"]   = {23.84, 1.01, 3.53},
-        ["White"]  = {10.50, 1.01, -10.20},
-        ["Red"]    = {-10.50, 1.01, -10.20},
-        ["Yellow"] = {-23.84, 1.01, 3.53}
-    },
-    rotation = {0, 180, 0}
-}
-
-stronghold_placement = {
-    positions = {
-        ["Blue"]   = {{25.88, 1.95, 3.55}, {27.25, 1.95, 3.55}, {28.62, 1.95, 3.55}},
-        ["White"]  = {{12.65, 1.95, -10.18}, {14.02, 1.95, -10.18}, {15.39, 1.95, -10.18}},
-        ["Red"]    = {{-12.65, 1.95, -10.18}, {-14.02, 1.95, -10.18}, {-15.39, 1.95, -10.18}},
-        ["Yellow"] = {{-25.88, 1.95, 3.55}, {-27.25, 1.95, 3.55}, {-28.62, 1.95, 3.55}}
-    }
-}
-
---// Define dynamic zone and object locations relative to the table mat //--
-function createTableMatObjectLocations()
-    -- Name and positions for table mats
-    local table_mat_name      = table_mat.getName()
-    local table_mat_offsets_z = {["Standard Mat"] = 0, ["Orient Mat"] = -1.44}
-    local table_mat_position  = {x = table_mat.getPosition().x, y = table_mat.getPosition().y, z = table_mat.getPosition().z + table_mat_offsets_z[table_mat_name]}
-    table_mat_rotation  = table_mat.getRotation()
-
-    -- Positions for deck zones on table mat
-    local deck_zone_positions_x = {-10.39, 11.42}
-    local deck_zone_positions_y = {0.2, 0.25, 0.29, 0.16} -- y positions relative to the mat's y position
-    local deck_zone_positions_z = {5.39, 1.23, -2.93}
-    local deck_zone_offsets_x   = {["Standard Mat"] = 0, ["Orient Mat"] = -1.06}
-    local deck_zone_scale       = {2.8, 1.0, 3.9}
-
-    deck_zone_parameters = {
-        positions = {
-            ["Blue"]   = {x = deck_zone_positions_x[1] + table_mat_position.x + deck_zone_offsets_x[table_mat_name], y = deck_zone_positions_y[1] + table_mat_position.y, z = deck_zone_positions_z[1] + table_mat_position.z},
-            ["Yellow"] = {x = deck_zone_positions_x[1] + table_mat_position.x + deck_zone_offsets_x[table_mat_name], y = deck_zone_positions_y[2] + table_mat_position.y, z = deck_zone_positions_z[2] + table_mat_position.z},
-            ["Green"]  = {x = deck_zone_positions_x[1] + table_mat_position.x + deck_zone_offsets_x[table_mat_name], y = deck_zone_positions_y[3] + table_mat_position.y, z = deck_zone_positions_z[3] + table_mat_position.z}
+-- 初始化
+function init()
+    -- 玩家颜色列表
+    playerColorList      = getSeatedPlayers()
+
+    -- 角色
+    settler              = getObjectFromGUID("ade655")
+    mayor                = getObjectFromGUID("3f1f84")
+    builder              = getObjectFromGUID("ed84e9")
+    craftsman            = getObjectFromGUID("679f07")
+    trader               = getObjectFromGUID("ca2c44")
+    captain              = getObjectFromGUID("93eb06")
+    prospector1          = getObjectFromGUID("bdab1d")
+    prospector2          = getObjectFromGUID("c7dbd4")
+    governor             = getObjectFromGUID("99ef60")
+
+    -- 板块
+    playerBoardYellow    = getObjectFromGUID("263342")
+    playerBoardBlue      = getObjectFromGUID("d76a03")
+    playerBoardWhite     = getObjectFromGUID("8a5373")
+    playerBoardOrange    = getObjectFromGUID("15f601")
+    playerBoardBrown     = getObjectFromGUID("c4adf4")
+    colonistHouse        = getObjectFromGUID("5c1212")
+    tradingHouse         = getObjectFromGUID("8bdd04")
+    cargo4               = getObjectFromGUID("937662")
+    cargo5               = getObjectFromGUID("8a639f")
+    cargo6               = getObjectFromGUID("9c07bf")
+    cargo7               = getObjectFromGUID("8cce9d")
+    cargo8               = getObjectFromGUID("a3dd31")
+
+    -- 脚本区域
+    colonistShipZone     = getObjectFromGUID("49320f")
+    plantationZoneYellow = getObjectFromGUID("bbdfc0")
+    plantationZoneBlue   = getObjectFromGUID("66b81f")
+    plantationZoneWhite  = getObjectFromGUID("972259")
+    plantationZoneOrange = getObjectFromGUID("5aa35e")
+    plantationZoneBrown  = getObjectFromGUID("46b72a")
+
+    -- 袋子
+    bag1Doubloon         = getObjectFromGUID("6b6fac")
+    bag5Doubloon         = getObjectFromGUID("6a88ba")
+    bagPlantation        = getObjectFromGUID("0b7761")
+
+    -- 文本
+    textColonist         = getObjectFromGUID("986d33")
+    textYellow           = getObjectFromGUID("b7f4ff")
+    textBlue             = getObjectFromGUID("7b362a")
+    textWhite            = getObjectFromGUID("dd59c9")
+    textOrange           = getObjectFromGUID("168ad7")
+    textBrown            = getObjectFromGUID("6d94e3")
+
+    -- 玩家列表
+    playerList           = {
+        Yellow = {
+            pay      = { -38.50, -2.97, -7.50 },
+            role     = { -47.00, -2.97, -8.00 },
+            text     = textYellow,
+            board    = playerBoardYellow,
+            assign   = { -51.00, -2.97, -8.00 },
+            governor = { -44.00, -2.97, -8.00 },
+            building = { -47.10, -2.97, -19.80 }
         },
-        rotation = {0, 180, 180},
-        scale = deck_zone_scale
-    }
-
-    if table_mat_name == "Orient Mat" then
-        deck_zone_parameters.positions["Red3"] = {x = deck_zone_positions_x[2] + table_mat_position.x, y = deck_zone_positions_y[4] + table_mat_position.y, z = deck_zone_positions_z[1] + table_mat_position.z}
-        deck_zone_parameters.positions["Red2"] = {x = deck_zone_positions_x[2] + table_mat_position.x, y = deck_zone_positions_y[4] + table_mat_position.y, z = deck_zone_positions_z[2] + table_mat_position.z}
-        deck_zone_parameters.positions["Red1"] = {x = deck_zone_positions_x[2] + table_mat_position.x, y = deck_zone_positions_y[4] + table_mat_position.y, z = deck_zone_positions_z[3] + table_mat_position.z}
-    end
-
-    -- Positions for deck and card zones on table mat
-    local card_zone_positions_x = {-6.98, -3.8, -0.66, 2.49, 4.84, 8.0}
-    local card_zone_position_y  = 0.61 -- y position relative to the mat's y position
-    local card_zone_positions_z = deck_zone_positions_z
-    local card_zone_offsets_x   = deck_zone_offsets_x
-    local card_zone_scale       = deck_zone_scale
-
-    card_zone_parameters = {
-        positions = {
-            ["Blue"] = {
-                ["Scripting Zone #1"] = {x = card_zone_positions_x[1] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z},
-                ["Scripting Zone #2"] = {x = card_zone_positions_x[2] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z},
-                ["Scripting Zone #3"] = {x = card_zone_positions_x[3] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z},
-                ["Scripting Zone #4"] = {x = card_zone_positions_x[4] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z}
-            },
-            ["Yellow"] = {
-                ["Scripting Zone #1"] = {x = card_zone_positions_x[1] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z},
-                ["Scripting Zone #2"] = {x = card_zone_positions_x[2] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z},
-                ["Scripting Zone #3"] = {x = card_zone_positions_x[3] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z},
-                ["Scripting Zone #4"] = {x = card_zone_positions_x[4] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z}
-            },
-            ["Green"] = {
-                ["Scripting Zone #1"] = {x = card_zone_positions_x[1] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z},
-                ["Scripting Zone #2"] = {x = card_zone_positions_x[2] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z},
-                ["Scripting Zone #3"] = {x = card_zone_positions_x[3] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z},
-                ["Scripting Zone #4"] = {x = card_zone_positions_x[4] + table_mat_position.x + card_zone_offsets_x[table_mat_name], y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z}
-            }
+        Blue   = {
+            pay      = { -16.50, -2.97, -7.50 },
+            role     = { -25.00, -2.97, -8.00 },
+            text     = textBlue,
+            board    = playerBoardBlue,
+            assign   = { -29.00, -2.97, -8.00 },
+            governor = { -22.00, -2.97, -8.00 },
+            building = { -25.10, -2.97, -19.80 }
         },
-        rotation = table_mat_rotation,
-        scale = card_zone_scale
-    }
-
-    if table_mat_name == "Orient Mat" then
-        card_zone_parameters.positions["Red3"] = {
-            ["Scripting Zone #1"] = {x = card_zone_positions_x[6] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z},
-            ["Scripting Zone #2"] = {x = card_zone_positions_x[5] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[1] + table_mat_position.z}
+        White  = {
+            pay      = { 5.50, -2.97, -7.50 },
+            role     = { -3.06, -2.97, -7.99 },
+            text     = textWhite,
+            board    = playerBoardWhite,
+            assign   = { -7.06, -2.97, -8.00 },
+            governor = { -0.06, -2.97, -7.99 },
+            building = { -3.10, -2.97, -19.80 }
+        },
+        Orange = {
+            pay      = { 27.50, -2.97, -7.50 },
+            role     = { 19.00, -2.97, -8.00 },
+            text     = textOrange,
+            board    = playerBoardOrange,
+            assign   = { 15.00, -2.97, -8.00 },
+            governor = { 22.00, -2.97, -8.00 },
+            building = { 18.90, -2.97, -19.80 }
+        },
+        Brown  = {
+            pay      = { 49.50, -2.97, -7.50 },
+            role     = { 41.00, -2.97, -8.00 },
+            text     = textBrown,
+            board    = playerBoardBrown,
+            assign   = { 37.00, -2.97, -8.00 },
+            governor = { 44.00, -2.97, -8.00 },
+            building = { 40.90, -2.97, -19.80 }
         }
-
-        card_zone_parameters.positions["Red2"] = {
-            ["Scripting Zone #1"] = {x = card_zone_positions_x[6] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z},
-            ["Scripting Zone #2"] = {x = card_zone_positions_x[5] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[2] + table_mat_position.z}
-        }
-
-        card_zone_parameters.positions["Red1"] = {
-            ["Scripting Zone #1"] = {x = card_zone_positions_x[6] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z},
-            ["Scripting Zone #2"] = {x = card_zone_positions_x[5] + table_mat_position.x, y = card_zone_position_y + table_mat_position.y, z = card_zone_positions_z[3] + table_mat_position.z}
-        }
-    end
-
-    -- Positions for noble tiles on table mat
-    local noble_postions_x = {["Standard Mat"] = {8.58, 6.78, 10.4, 6.78, 10.4}, ["Orient Mat"] = {-3.67, -0.06, 3.55, -7.28, 7.16}}
-    local noble_postion_y  = 0.61 -- y positions relative to the mat's y position
-    local noble_postions_z = {["Standard Mat"] = {3.54, 0, 0, -3.55, -3.55}, ["Orient Mat"] = {9.05, 9.05, 9.05, 9.05, 9.05}}
-
-    noble_tile_placement = {
-        positions = {
-            ["Noble #1"] = {x = noble_postions_x[table_mat_name][1] + table_mat_position.x, y = noble_postion_y + table_mat_position.y, z = noble_postions_z[table_mat_name][1] + table_mat_position.z},
-            ["Noble #2"] = {x = noble_postions_x[table_mat_name][2] + table_mat_position.x, y = noble_postion_y + table_mat_position.y, z = noble_postions_z[table_mat_name][2] + table_mat_position.z},
-            ["Noble #3"] = {x = noble_postions_x[table_mat_name][3] + table_mat_position.x, y = noble_postion_y + table_mat_position.y, z = noble_postions_z[table_mat_name][3] + table_mat_position.z},
-            ["Noble #4"] = {x = noble_postions_x[table_mat_name][4] + table_mat_position.x, y = noble_postion_y + table_mat_position.y, z = noble_postions_z[table_mat_name][4] + table_mat_position.z},
-            ["Noble #5"] = {x = noble_postions_x[table_mat_name][5] + table_mat_position.x, y = noble_postion_y + table_mat_position.y, z = noble_postions_z[table_mat_name][5] + table_mat_position.z}
-        },
-        rotation = table_mat_rotation
     }
 
-    -- Positions for city tiles on table mat
-    local city_postions_x = {["Standard Mat"] = {8.58, 8.58, 8.58}, ["Orient Mat"] = {-6.01, -0.06, 5.89}}
-    local city_postion_y  = 0.10 -- y positions relative to the mat's y position
-    local city_postions_z = {["Standard Mat"] = {3.50, 0.0, -3.50}, ["Orient Mat"] = {9.05, 9.05, 9.05}}
 
-    city_tile_placement = {
-        positions = {
-            ["City #1"] = {x = city_postions_x[table_mat_name][1] + table_mat_position.x, y = city_postion_y + table_mat_position.y, z = city_postions_z[table_mat_name][1] + table_mat_position.z},
-            ["City #2"] = {x = city_postions_x[table_mat_name][2] + table_mat_position.x, y = city_postion_y + table_mat_position.y, z = city_postions_z[table_mat_name][2] + table_mat_position.z},
-            ["City #3"] = {x = city_postions_x[table_mat_name][3] + table_mat_position.x, y = city_postion_y + table_mat_position.y, z = city_postions_z[table_mat_name][3] + table_mat_position.z}
-        },
-        rotation = table_mat_rotation
-    }
+    -- 运输船列表
+    shipList = { cargo4, cargo5, cargo6, cargo7, cargo8 }
 
-    -- Positions for gem containers on table mat
-    local gem_container_positions_x = {-6.60, -3.96, -1.32, 1.32, 3.96, 6.60}
-    local gem_container_position_y  = 0.16 -- y positions relative to the mat's y position
-    local gem_container_position_z  = -6.23
-
-    gem_container_placement = {
-        positions = {
-            ["Diamond"]  = {x = gem_container_positions_x[1] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z},
-            ["Sapphire"] = {x = gem_container_positions_x[2] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z},
-            ["Emerald"]  = {x = gem_container_positions_x[3] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z},
-            ["Ruby"]     = {x = gem_container_positions_x[4] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z},
-            ["Onyx"]     = {x = gem_container_positions_x[5] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z},
-            ["Gold"]     = {x = gem_container_positions_x[6] + table_mat_position.x, y = gem_container_position_y + table_mat_position.y, z = gem_container_position_z + table_mat_position.z}
-        },
-        rotation = table_mat_rotation
-    }
+    topShip  = shipList[#playerColorList - 0]
+    midShip  = shipList[#playerColorList - 1]
+    botShip  = shipList[#playerColorList - 2]
 end
 
---// Define dynamic zone locations relative to the 'Trading Posts' mat //--
-function createTradingPostsMatZoneLocations()
-    local tp_mat_position = {x = trading_posts_mat.getPosition().x, y = trading_posts_mat.getPosition().y, z = trading_posts_mat.getPosition().z}
+-- 建筑列表
+buildingList = {
+    SmallIndigoPlant = { circle = 1, score = 1 },
+    LargeIndigoPlant = { circle = 3, score = 2 },
+    SmallSugarMill   = { circle = 1, score = 1 },
+    LargeSugarMill   = { circle = 3, score = 2 },
+    TobaccoStorage   = { circle = 3, score = 3 },
+    CoffeeRoaster    = { circle = 2, score = 3 },
+    SmallMarket      = { circle = 1, score = 1 },
+    ConstructionHut  = { circle = 1, score = 1 },
+    Hacienda         = { circle = 1, score = 1 },
+    SmallWarehouse   = { circle = 1, score = 1 },
+    BoardingHouse    = { circle = 1, score = 2 },
+    CommercialOffice = { circle = 1, score = 2 },
+    LargeMarket      = { circle = 1, score = 2 },
+    LargeWarehouse   = { circle = 1, score = 2 },
+    Factory          = { circle = 1, score = 3 },
+    Harbor           = { circle = 1, score = 3 },
+    University       = { circle = 1, score = 3 },
+    Wharf            = { circle = 1, score = 3 },
+    CityHall         = { circle = 1, score = 4 },
+    GuildHall        = { circle = 1, score = 4 },
+    CustomsHouse     = { circle = 1, score = 4 },
+    Residence        = { circle = 1, score = 4 },
+    Fortress         = { circle = 1, score = 4 }
+}
 
-    local tp_zone_positions_x = {-10.54, -5.19, 0.22, 5.70, 10.80}
-    local tp_zone_position_y  = 0.49 -- y positions relative to the mat's y position
-    local tp_zone_position_z  = 0.84 -- z positions relative to the mat's z position
-    local tp_zone_scale       = {4.4, 0.85, 4.4}
+-- 角色初始坐标
+rolePos = {
+    Craftsman   = { -8.20, -2.97, 5.67 },
+    Builder     = { -8.20, -2.97, 0.98 },
+    Prospector1 = { -8.20, -2.97, 15.05 },
+    Prospector2 = { -8.20, -2.97, 10.36 },
+    Trader      = { -8.20, -2.97, 10.36 },
+    Mayor       = { -11.25, -2.97, 5.67 },
+    Settler     = { -11.25, -2.92, 0.98 },
+    Captain     = { -11.25, -2.97, 10.36 }
+}
 
-    trading_posts_zone_parameters = {
-        positions = {
-            [tp1] = {x = tp_zone_positions_x[1] + tp_mat_position.x, y = tp_zone_position_y + tp_mat_position.y, z = tp_zone_position_z + tp_mat_position.z},
-            [tp2] = {x = tp_zone_positions_x[2] + tp_mat_position.x, y = tp_zone_position_y + tp_mat_position.y, z = tp_zone_position_z + tp_mat_position.z},
-            [tp3] = {x = tp_zone_positions_x[3] + tp_mat_position.x, y = tp_zone_position_y + tp_mat_position.y, z = tp_zone_position_z + tp_mat_position.z},
-            [tp4] = {x = tp_zone_positions_x[4] + tp_mat_position.x, y = tp_zone_position_y + tp_mat_position.y, z = tp_zone_position_z + tp_mat_position.z},
-            [tp5] = {x = tp_zone_positions_x[5] + tp_mat_position.x, y = tp_zone_position_y + tp_mat_position.y, z = tp_zone_position_z + tp_mat_position.z}
-        },
-        rotation = trading_posts_mat.getRotation(),
-        scale = tp_zone_scale
-    }
-end
+-- 货物列表
+goodsList = {
+    { tag = "None",    color = "Grey" },
+    { tag = "Corn",    color = "Yellow" },
+    { tag = "Indigo",  color = "Blue" },
+    { tag = "Sugar",   color = "White" },
+    { tag = "Tobacco", color = "Brown" },
+    { tag = "Coffee",  color = "Black" }
+}
 
-----#include !\TTS_Splendor\Scripts\Setup\object_locations
-----#include !\TTS_Splendor\Scripts\Setup\create_scripting_zones
---// Get or create the scripting zones for decks //--
-function createDeckScriptingZones()
-    for color, position in pairs(deck_zone_parameters.positions) do
-        local zone_name = color .. " Deck Scripting Zone"
-        local scripting_zone = getScriptingZone(zone_name) or spawnObject({
-            type  = "ScriptingTrigger",
-            sound = false
-        })
-        scripting_zone.setName(zone_name)
-        scripting_zone.setPosition(position)
-        scripting_zone.setRotation(deck_zone_parameters.rotation)
-        scripting_zone.setScale(deck_zone_parameters.scale)
-        scripting_zone.setTags({"Card"})
-        deck_zones[color] = scripting_zone
-    end
-end
-
-
---// Get or create the scripting zones for cards //--
-function createCardScriptingZones()
-    for color, zones in pairs(card_zone_parameters.positions) do
-        card_zones[color] = {}
-        for zone_name, position in pairs(zones) do
-            local full_zone_name = color .. " Card " .. zone_name
-            local scripting_zone = getScriptingZone(full_zone_name) or spawnObject({
-                type  = "ScriptingTrigger",
-                sound = false
-            })
-            scripting_zone.setName(full_zone_name)
-            scripting_zone.setPosition(position)
-            scripting_zone.setRotation(card_zone_parameters.rotation)
-            scripting_zone.setScale(card_zone_parameters.scale)
-            scripting_zone.setTags({"Card"})
-            table.insert(card_zones[color], scripting_zone)
-        end
-    end
-end
-
-function createTradingPostScriptingZones()
-    for zone_name, position in pairs(trading_posts_zone_parameters.positions) do
-        local scripting_zone = getScriptingZone(zone_name) or spawnObject({
-            type  = "ScriptingTrigger",
-            sound = false
-        })
-        scripting_zone.setName(zone_name)
-        scripting_zone.setPosition(position)
-        scripting_zone.setRotation(trading_posts_zone_parameters.rotation)
-        scripting_zone.setScale(trading_posts_zone_parameters.scale)
-        scripting_zone.setTags({"Blue Shield", "White Shield", "Red Shield", "Yellow Shield"})
-        trading_posts_zones[zone_name] = scripting_zone
-    end
-end
-
---// Get a scripting zone by name if it exists //--
-function getScriptingZone(zone_name)
-    for _, object in ipairs(getAllObjects()) do
-        if object.type == "Scripting" and object.getName() ~= nil then
-            if string.match(object.getName(), zone_name) ~= nil then
-                return object
-            end
-        end
-    end
-end
-
-----#include !\TTS_Splendor\Scripts\Setup\create_scripting_zones
-----#include !\TTS_Splendor\Scripts\Setup\configure_players
---// Select the starting player form the list of available players if any //--
-function selectStartingPlayer()
-    local starting_player_color = nil
-    if #seated_players > 0 then
-        local starting_player_number = math.random(1, #seated_players)
-        starting_player_color = seated_players[starting_player_number]
-        broadcastToAll(Player[starting_player_color].steam_name .. " is the starting player!", Color.fromString(starting_player_color))
-    end
-    return starting_player_color
-end
-
---// Set the turn order for the players relative to the starting player //--
-function setTurnOrder(starting_player_color)
-    Turns.type = 2
-    if starting_player_color == "Red" then
-        turn_order = {"Red", "Yellow", "Blue", "White"}
-    elseif starting_player_color == "Yellow" then
-        turn_order = {"Yellow", "Blue", "White", "Red"}
-    elseif starting_player_color == "Blue" then
-        turn_order = {"Blue", "White", "Red", "Yellow"}
-    else
-        turn_order = {"White", "Red", "Yellow", "Blue"}
-    end
-    Turns.order = turn_order
-end
-
---// Checks whether the number of players is sufficient to start the game //--
-function checkPlayerCount()
-    seated_players = getSeatedPlayers()
-    if player_count_setting == "Auto" then
-        number_of_players = #seated_players
-
-        if number_of_players < 2 then
-            broadcastToAll("Insufficient number of players to start the game!\nPlease wait for additional seated players before starting.", Color.fromString("Orange"))
-        else
-            startGame()
-        end
-    else
-        startGame()
-    end
-end
-
-----#include !\TTS_Splendor\Scripts\Setup\configure_players
-----#include !\TTS_Splendor\Scripts\Setup\game_setup
---// Setup the table mat and place all necessary components //--
-function startGame()
-    print("Starting a new " .. number_of_players .. "-player game...")
-
-    -- Remove the game setup mat
-    bags.mats.putObject(game_setup_mat)
-
-    -- Place a table mat based on the selected
-    if orient_expansion_enabled then
-        -- Use the custom 'Orient Cities' mat if both expansions are enabled, otherwise use the 'Orient' mat
-        if cities_expansion_enabled then
-            table_mat_guid = orient_cities_table_mat_guid
-        else
-            table_mat_guid = orient_table_mat_guid
-        end
-        table_mat = bags.mats.takeObject({
-            guid     = table_mat_guid,
-            position = {0.0, 0.96, 1.44},
-            rotation = {0, 180, 0},
-            smooth   = false,
-        })
-    else
-        -- Use the 'Cities' mat if the expansion is enabled, otherwise us the standard mat
-        if cities_expansion_enabled then
-            table_mat_guid = cities_table_mat_guid
-        else
-            table_mat_guid = standard_table_mat_guid
-        end
-        -- Place the table mat
-        table_mat = bags.mats.takeObject({
-            guid     = table_mat_guid,
-            position = {0, 0.96, 0},
-            rotation = {0, 180, 0},
-            smooth   = false,
-        })
-    end
-
-    -- Lock the table mat
-    table_mat.setLock(true)
-    -- Create the locations for nobles, cities, coins and decks/card zones
-    createTableMatObjectLocations()
-    -- Crete the scripting zones for the decks and cards relative to the table mat
-    createDeckScriptingZones()
-    createCardScriptingZones()
-
-    -- Place the 'Trading Posts' mat if the expansion is selected
-    if trading_posts_expansion_enabled then
-        local trading_posts_mat_parameters = {
-            guid     = trading_posts_mat_guid,
-            position = {0, 1, 11.62},
-            rotation = {0, 180, 0},
-            smooth   = false,
-        }
-        if orient_expansion_enabled then
-            trading_posts_mat_parameters.position = {0, 1, 14.5}
-        end
-        -- Place the 'Trading Posts' mat
-        trading_posts_mat = bags.mats.takeObject(trading_posts_mat_parameters)
-        -- Lock the 'Trading Posts' mat
-        trading_posts_mat.setLock(true)
-        -- Create the locations for 'Trading Posts' zones
-        createTradingPostsMatZoneLocations()
-        -- Crete the scripting zones for the 'Trading Posts' mat
-        createTradingPostScriptingZones()
-    end
-
-    -- Place decks into corresponding zones if they exist
-    for deck_color, _ in pairs(deck_zones) do
-        placeDeck(deck_color)
-    end
-
-    -- Place 'Cities' if the expansion is enabled, otherwise place nobles
-    if cities_expansion_enabled then
-        -- Shuffle the city tiles
-        bags.cities.shuffle()
-        -- Place the city tiles
-        for i = 1, 3 do
-            bags.cities.takeObject({
-                position = city_tile_placement.positions["City #" .. i],
-                rotation = city_tile_placement.rotation,
-                smooth   = false,
-                flip     = randomBoolean()
-            })
-        end
-    else
-        -- Shuffle the noble tiles
-        bags.nobles.shuffle()
-        -- Place the noble tiles
-        for i = 1, number_of_players + 1 do
-            bags.nobles.takeObject({
-                position = noble_tile_placement.positions["Noble #" .. i],
-                rotation = noble_tile_placement.rotation,
-                smooth   = false,
-                flip     = true
-            })
-        end
-    end
-
-    -- Place the gem token containers
-    for gem_name, _ in pairs(gem_container_guids) do
-        placeGemContainer(gem_name)
-    end
-
-    -- Place the gem tokens
-    for i = 1, 5 do
-        placeGemToken("Gold")
-    end
-
-    if number_of_players == 2 then
-        j = 4
-    elseif number_of_players == 3 then
-        j = 5
-    else
-        j = 7
-    end
-
-    for i = 1, j do
-        placeGemToken("Diamond")
-        placeGemToken("Sapphire")
-        placeGemToken("Emerald")
-        placeGemToken("Ruby")
-        placeGemToken("Onyx")
-    end
-
-    -- Place the coat of arms containers if the 'Trading Posts' expansion is enabled
-    if trading_posts_expansion_enabled then
-        for player_color, _ in pairs (shield_container_guids) do
-            placeShieldContainer(player_color)
-        end
-    end
-
-    -- Place the strongholds if the expansion is enabled
-    if strongholds_expansion_enabled then
-        for player_color, _ in pairs (shield_container_guids) do
-            for i = 1, 3 do
-                placeStronghold(player_color, i)
-            end
-        end
-    end
-
-    -- Place the cards
-    for card_color, _ in pairs(card_zones) do
-        placeCards(card_color)
-    end
-
-    -- Set the turn order relative to the starting player
-    setTurnOrder(selectStartingPlayer())
-    -- Enable turns if the option is enabled
-    Turns.enable = turns_enabled
-
-    -- Start playing music if the option is enabled
-    if music_enabled then
-        Wait.condition(
-            function()
-                -- Start the music player
-                MusicPlayer.play()
-            end,
-            function() -- Condition function
-                -- Wait for everyone to finish loading the audioclip
-                return MusicPlayer.loaded
-            end
-        )
-    end
-end
-
---// Place a deck into a scripting zone//--
-function placeDeck(deck_color)
-    local bag      = bags.decks
-    local guid     = deck_guids[deck_color]
-    local position = deck_zones[deck_color].getPosition()
-    local rotation = deck_zones[deck_color].getRotation()
-
-    deck = placeContainer(bag, guid, position, rotation)
-    deck.shuffle()
-    deck.setLock(true)
-    decks[deck_color] = deck
-end
-
---// Place a gem container //--
-function placeGemContainer(gem_name)
-    local bag      = token_bags[gem_name]
-    local guid     = gem_container_guids[gem_name]
-    local position = gem_container_placement.positions[gem_name]
-    local rotation = gem_container_placement.rotation
-
-    -- Take the gem container from the bag, place it, then lock it
-    local gem_container = placeContainer(bag, guid, position, rotation)
-    gem_container.setLock(true)
-end
-
---// Place a coat of arms containter //--
-function placeShieldContainer(player_color)
-    local bag      = bags.shields
-    local guid     = shield_container_guids[player_color]
-    local position = shield_container_placement.positions[player_color]
-    local rotation = shield_container_placement.rotation
-
-    -- Place the container then lock it
-    local shield_container = placeContainer(bag, guid, position, rotation)
-    shield_container.setLock(true)
-end
-
---// Helper function that takes a container object from a container and places it //--
-function placeContainer(bag, guid, position, rotation)
-    return bag.takeObject({
-        guid     = guid,
-        position = position,
-        rotation = rotation,
-        smooth   = false
+-- 加载
+function onLoad()
+    -- 初始化
+    init()
+    -- 总督
+    governor.createButton({
+        click_function = "setup",
+        position = { 0, 0.1, 0.75 },
+        width = 150,
+        font_size = 50,
+        label = "setup"
     })
-end
-
---// Place a gem token //--
-function placeGemToken(gem_name)
-    local bag      = token_bags[gem_name]
-    local position = {gem_container_placement.positions[gem_name].x, gem_container_placement.positions[gem_name].y + 0.3, gem_container_placement.positions[gem_name].z}
-    local smooth   = false
-    local flip     = false
-
-    placeObject(bag, position, smooth, flip)
-end
-
---// Place cards into scripting zones //--
-function placeCards(card_color)
-    local bag      = decks[card_color]
-    local smooth   = true
-    local flip     = true
-
-    for i = 1, #card_zones[card_color] do
-        local position = card_zones[card_color][i].getPosition()
-        placeObject(bag, position, smooth, flip)
-    end
-end
-
---// Place a stronghold //--
-function placeStronghold(player_color, index)
-    local bag      = stronghold_bags[player_color]
-    local position = stronghold_placement.positions[player_color][index]
-    local smooth   = false
-    local flip     = false
-
-    placeObject(bag, position, smooth, flip)
-    player_mats[player_color].editButton({index = 3, label = "●  ●  ●"})
-end
-
---// Helper function that takes an object from a container and places it //--
-function placeObject(bag, position, smooth, flip)
-    return bag.takeObject({
-        position = position,
-        smooth   = smooth,
-        flip     = flip
+    -- 勘探者1
+    prospector1.createButton({
+        click_function = "prospector",
+        position       = { 0, 0.1, 0.39 },
+        width          = 182,
+        font_size      = 40,
+        label          = "doubloon"
     })
-end
-
---//  Helper function that generates a random boolean //--
-function randomBoolean()
-    random_number = math.random(0, 1)
-    return random_number ~= 0
-end
-
-----#include !\TTS_Splendor\Scripts\Setup\game_setup
-----#include !\TTS_Splendor\Scripts\Setup\score_count_tracking
---// Count the number of gem cards and coins in a player's zone //--
-function countGem(zone, object)
-    -- Exit the function if the zone is nil
-    if zone == nil then return end
-    -- Exit the function if the zone doesn't have a name
-    if zone.getName() == nil then return end
-    -- Exit the function if the zone isn't a player's point zone
-    if string.match(zone.getName(), "Player Point Zone") == nil then return end
-
-    -- Get the player color from the name of the player's point zone
-    local player_color = split(zone.getName(), " ")[1]
-
-    -- Exit the function if the object is nil
-    if object == nil then return end
-    -- Exit the function if the object doesn't have a name
-    if object.getName() == nil then return end
-    -- Exit the function if the object's name doesn't contain a gem name
-    if not findKeyInTable(object.getName(), gem_counters[player_color]) then return end
-
-    -- Get the gem name from the object name
-    local gem_name = split(object.getName(), " ")[1]
-    -- Set the default card and gem counts
-    local cards = 0
-    local gems = 0
-
-    -- Count the gem cards and coins in the zone
-    for i = 1, #zone.getObjects() do
-        -- Exit the loop if there are no objects in the zone
-        if #zone.getObjects() == 0 then break end
-
-        local object_in_zone = zone.getObjects()[i]
-        -- Only count objects having names containing the same gem name as the object
-        if string.match(object_in_zone.getName(), gem_name) ~= nil then
-            -- Increment the card count if the object name contains 'card', otherwise increment the coin count
-            if string.match(object_in_zone.getName(), "card") ~= nil or string.match(object_in_zone.getName(), "Card") ~= nil then
-                -- Increment the card count by 2 if the card is a double gem card, otherwise increment by 1
-                if string.match(object_in_zone.getName(), "Double") ~= nil then
-                    cards = cards + 2
-                else
-                    cards = cards + 1
-                end
-            else
-                -- Increment the coin count by 2 if the coin is a double coin card, otherwise incement by 1
-                if object_in_zone.getDescription() == "$$" then
-                    gems = gems + 2
-                else
-                    gems = gems + 1
-                end
-            end
-        end
-    end
-
-    -- Set the card and gem counts; if the gem name is gold, only set the coin count
-    local counts = cards .. "/" .. gems + cards
-    if gem_name == "Gold" then
-        counts = tostring(gems)
-    end
-
-    -- Update the gem counter for the corresponding player
-    gem_counters[player_color][gem_name].TextTool.setValue(counts)
-end
-
---// Count the number of gem tokens in a player's zone //--
-function trackTotalGemTokens(zone)
-    -- Exit the function if the zone is nil
-    if zone == nil then return end
-    -- Exit the function if the zone doesn't have a name
-    if zone.getName() == nil then return end
-    -- Exit the function if the zone isn't a player's point zone
-    if string.match(zone.getName(), "Player Point Zone") == nil then return end
-
-    -- Get the player color from the name of the player's point zone
-    local player_color = split(zone.getName(), " ")[1]
-
-    -- Set the default count for gems
-    local gems = 0
-
-    if #zone.getObjects() ~= 0 then
-        for _, object in ipairs(zone.getObjects()) do
-            if string.match(object.getName(), "Token") ~= nil and string.match(object.getName(), "Tokens") == nil then
-                gems = gems + 1
-            end
-        end
-    end
-
-    if player_mats[player_color].getButtons() == nil then return end
-
-    player_mats[player_color].editButton({index = 1, label = "Tokens: " .. gems})
-    local button_color = {0, 0, 0}
-    if gems > 10 then
-        button_color = {0.784, 0.22, 0.153} -- Custom red color
-    end
-    player_mats[player_color].editButton({index = 2, color = button_color})
-end
-
---// Helper funtion to trigger the tracking of points from object owned scripts //--
-function triggerTrackPoints(object)
-    -- Exit the function if the object is nil
-    if object == nil then return end
-    -- Exit the function if the object isn't in a zone
-    if #object.getZones() == 0 then return end
-
-    for _, zone in ipairs(object.getZones()) do
-        if string.match(zone.getName(), "Player Point Zone") ~= nil then
-            trackPoints(zone, object)
-            break
-        end
-    end
-end
-
---// Calcutlate the total points for cards and nobles in a player's zone //--
-function trackPoints(zone, object)
-    -- Exit the function if the zone is nil
-    if zone == nil then return end
-    -- Exit the function if the zone doesn't have a name
-    if zone.getName() == nil then return end
-    -- Exit the function if the zone isn't a player's point zone
-    if string.match(zone.getName(), "Player Point Zone") == nil then return end
-
-    -- Get the player color from the name of the player's point zone
-    local player_color = split(zone.getName(), " ")[1]
-
-    -- Exit the function if the object is nil
-    if object == nil then return end
-    -- Exit the function if the object doesn't have a description
-    if object.getDescription() == nil then return end
-
-    -- Set the default count for points
-    local points = 0
-
-    -- Determine if a trading post has been established by a player
-    if #zone.getObjects() ~= 0 then
-        for i = 1, #zone.getObjects() do
-            local object = zone.getObjects()[i]
-            if tonumber(object.getDescription()) ~= nil then
-                points = points + tonumber(object.getDescription())
-            end
-        end
-    end
-    player_points[player_color]["mat_points"] = points
-    updatePointsCounter(player_color)
-end
-
---// Calculate the total points for established trading posts //--
-function trackTradingPostPoints(zone, object)
-    -- Exit the funciton if the zone is nil
-    if zone == nil then return end
-    -- Exit the function if the zone doesn't have a name
-    if zone.getName() == nil then return end
-    -- Exit the function if the zone isn't a 'Trading Posts' zone
-    if not findKeyInTable(zone.getName(), trading_posts_zones) then return end
-    -- Exit the funciton if the object is nil
-    if object == nil then return end
-    -- Exit the function if the object doesn't have a name
-    if object.getName() == nil then return end
-    -- Exit the function if the object isn't a coat of arms
-    if string.match(object.getName(), "Coat of Arms") == nil then return end
-
-    -- Get the player color from the name of the coat of arms token
-    local player_color = split(object.getName(), " ")[1]
-    -- Set the default established state for a trading post
-    local established = false
-
-    -- Determine if a trading post has been established by a player
-    if #zone.getObjects() ~= 0 then
-        for i = 1, #zone.getObjects() do
-            if string.match(zone.getObjects()[i].getName(), player_color .. " Coat of Arms") ~= nil then
-                established = true
-                break
-            end
-        end
-    end
-
-    -- Track the established state of a player's trading post
-    established_trading_posts[player_color][zone.getName()] = established
-
-    -- Update the points from a players established trading posts
-    local etp = established_trading_posts[player_color]
-    local points = 0
-    local count = 0
-
-    if etp[tp1] then
-        count = count + 1
-    end
-    if etp[tp2] then
-        count = count + 1
-    end
-    if etp[tp3] then
-        count = count + 1
-    end
-    if etp[tp4] then
-        count = count + 1
-        points = points + 5
-    end
-    if etp[tp5] then
-        count = count + 1
-        points = points + count
-    end
-
-    -- Track the total points for a player's established trading posts
-    player_points[player_color]["tp_points"] = points
-    -- Update the total points counter for a player
-    updatePointsCounter(player_color)
-end
-
---// Update a player't total points from the player's zone and trading posts mat //--
-function updatePointsCounter(player_color)
-    -- Exit the function if the point counters haven't been populated
-    if point_counters == nil then return end
-
-    points = player_points[player_color]["mat_points"] + player_points[player_color]["tp_points"]
-    point_counters[player_color].Counter.setValue(points)
-end
-
---// Dummy function for disabled buttons //--
-function doNothing() end
-
-----#include !\TTS_Splendor\Scripts\Setup\score_count_tracking
-----#include !\TTS_Splendor\Scripts\Helpers\split_string
---// Helper functions that splits strings by delimiter (returns table) //--
-function split(string, delimiter)
-    local result = {};
-    for match in (string..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match);
-    end
-    return result;
-end
-
-----#include !\TTS_Splendor\Scripts\Helpers\split_string
-----#include !\TTS_Splendor\Scripts\Helpers\find_key_in_table
---// Helper function that checks if the table contains the specifid key (returns boolean) //--
-function findKeyInTable(key, table)
-    local found = false
-    for k, _ in pairs(table) do
-        if string.match(key, k) ~= nil then
-            found = true
-            break
-        end
-    end
-    return found
-end
-
-----#include !\TTS_Splendor\Scripts\Helpers\find_key_in_table
-----#include !\TTS_Splendor\Scripts\Helpers\prevent_card_stacking
--- Prevent cards from stacking in a player's point zone
-prevent_card_stacking = true
-
---[[
-    Check if any cards in the player area are stacked, and if so, split them up.
-
-    So here's a weird one. I need to lock out TTS from doing weird stuff when
-    you create a 2-card deck from two individual cards. Otherwise it does REALLY
-    weird stuff (calls functions twice when drawing a card, etc.)
-
-    It doesn't do this if you drop a card onto an existing deck, only when you
-    create a new deck from 2 cards...
-
-    If you know how to fix it so that I don't have to use a mutex, please let me know.
-]]--
-
-function preventCardStacking(container)
-    -- Exit the function if the container isn't a deck
-    if container.name ~= "Deck" then return end
-    -- Exit the funciton if card stacking prevention is disabled
-    if not prevent_card_stacking then return end
-
-    -- Temporatily disable card stacking prevention while the stack is spread apart
-    prevent_card_stacking = false
-    -- Wait for the cards to stack before spreading apart the deck
+    -- 勘探者2
+    prospector2.createButton({
+        click_function = "prospector",
+        position       = { 0, 0.1, 0.30 },
+        font_size      = 50,
+        label          = "1 doubloon"
+    })
+    -- 市长
+    mayor.createButton({
+        click_function = "assignColonists",
+        position       = { -0.2, 0.1, 0.25 },
+        width          = 175,
+        font_size      = 50,
+        label          = "assign"
+    })
+    mayor.createButton({
+        click_function = "supplyColonists",
+        position       = { 0.2, 0.1, 0.25 },
+        width          = 175,
+        font_size      = 50,
+        label          = "supply"
+    })
+    -- 工匠
+    craftsman.createButton({
+        click_function = "produce",
+        position       = { 0, 0.1, 0.30 },
+        width          = 175,
+        font_size      = 50,
+        label          = "produce"
+    })
+    craftsman.createButton({
+        click_function = "nextGoods",
+        position       = { 0.3, 0.1, 0.30 },
+        color          = Color.Grey,
+        hover_color    = Color.Grey,
+        press_color    = Color.Grey
+    })
+    -- 玩家Yellow
+    playerBoardYellow.createButton({
+        click_function = "pay",
+        position       = { 1.55, 0.1, -1.1 },
+        font_size      = 50,
+        label          = "※"
+    })
+    -- 玩家Blue
+    playerBoardBlue.createButton({
+        click_function = "pay",
+        position       = { 1.55, 0.1, -1.1 },
+        font_size      = 50,
+        label          = "※"
+    })
+    -- 玩家White
+    playerBoardWhite.createButton({
+        click_function = "pay",
+        position       = { 1.55, 0.1, -1.1 },
+        font_size      = 50,
+        label          = "※"
+    })
+    -- 玩家Orange
+    playerBoardOrange.createButton({
+        click_function = "pay",
+        position       = { 1.55, 0.1, -1.1 },
+        font_size      = 50,
+        label          = "※"
+    })
+    -- 玩家Brown
+    playerBoardBrown.createButton({
+        click_function = "pay",
+        position       = { 1.55, 0.1, -1.1 },
+        font_size      = 50,
+        label          = "※"
+    })
+    -- 定时函数：显示殖民船殖民数
     Wait.time(
         function()
-            for _, zone in ipairs(container.getZones()) do
-                if string.match(zone.getName(), "Player Point Zone") ~= nil then
-                    container.takeObject({
-                        position = {container.getPosition().x, container.getPosition().y + 1, container.getPosition().z - 0.8},
-                        smooth   = true,
-                        top      = true
-                    })
-                    break
+            local objList = {}
+            for _, obj in ipairs(colonistShipZone.getObjects(true)) do
+                if obj.hasTag("colonists") then
+                    table.insert(objList, obj)
                 end
             end
-            prevent_card_stacking = true
-        end, 0.5, 0
+            textColonist.setValue(tostring(#objList))
+        end,
+        1, -1
     )
+    -- -- 定时函数：显示玩家分数&财富
+    -- Wait.time(
+    --     function()
+    --         for _, color in ipairs(playerColorList) do
+    --             calcScoreAndMoney(color)
+    --         end
+    --     end,
+    --     1, -1
+    -- )
 end
 
-----#include !\TTS_Splendor\Scripts\Helpers\prevent_card_stacking
-
---// Triggers when the game (and all objects it contains) has finished loading //--
-function onLoad(script_state)
-    initializeZones()
-    initializeObjects()
-    loadGameInProgress(script_state)
+-- 对象进入区域触发函数
+function onObjectEnterZone(zone, obj)
+    -- 删除标签
+    if isPlantationZone(zone) then
+        obj.removeTag("chip remain")
+    end
 end
 
---// Triggers when a game in progress is being saved //--
-function onSave()
-    return saveGameInProgress()
+-- 获取区域中指定标签对象列表
+function getObjListFromZoneWithTag(zone, tag)
+    local objList = {}
+    for _, obj in pairs(zone.getObjects(true)) do
+        if obj.hasTag(tag) then
+            table.insert(objList, obj)
+        end
+    end
+    return objList
 end
 
---// Triggers when an object enters a zone //--
-function onObjectEnterZone(zone, object)
-    trackTotalGemTokens(zone)
-    trackPoints(zone, object)
-    trackTradingPostPoints(zone, object)
-    countGem(zone, object)
+-- 勘探者
+function prospector(obj, color)
+    -- 勘探者特权
+    bag1Doubloon.takeObject({ position = playerList[color].assign })
 end
 
---// Triggers when an object leaves a zone //--
-function onObjectLeaveZone(zone, object)
-    trackTotalGemTokens(zone)
-    trackPoints(zone, object)
-    trackTradingPostPoints(zone, object)
-    countGem(zone, object)
+-- 拿取角色
+take = function(color, obj)
+    if obj ~= nil and obj.hasTag("role remain") then
+        -- 替换标签
+        obj.removeTag("role remain")
+        obj.addTag("role select")
+        -- 移动 role 至玩家角色区
+        obj.setPositionSmooth(playerList[color].role, false, true)
+        -- 碰撞检测
+        local hitList = Physics.cast({
+            origin       = obj.getPosition(),
+            direction    = { 0, 1, 0 },
+            max_distance = 5
+        })
+        -- 移动 hitList 至玩家分配区
+        for _, element in ipairs(hitList) do
+            moveObjToPos(element.hit_object, playerList[color].assign)
+        end
+    end
 end
 
---// Triggers when an object enters a container //--
-function onObjectEnterContainer(container, _)
-    preventCardStacking(container)
+
+-- 设置
+function setup(obj)
+    -- 生成袋子
+    bagCorn     = spawnObject({ type = "Bag", position = { 2, 2, -9 } })
+    bagIndigo   = spawnObject({ type = "Bag", position = { 4, 2, -9 } })
+    bagSugar    = spawnObject({ type = "Bag", position = { 6, 2, -9 } })
+    bagTobacco  = spawnObject({ type = "Bag", position = { 8, 2, -9 } })
+    bagCoffee   = spawnObject({ type = "Bag", position = { 10, 2, -9 } })
+    bagColonist = spawnObject({ type = "Bag", position = { -8, 2, -9 } })
+    -- 设置袋子颜色
+    bagCorn.setColorTint(Color.Yellow)
+    bagIndigo.setColorTint(Color.Blue)
+    bagSugar.setColorTint(Color.White)
+    bagTobacco.setColorTint(Color.Brown)
+    bagCoffee.setColorTint(Color.Black)
+    -- 设置袋子名称
+    bagCorn.setName("Corn")
+    bagIndigo.setName("Indigo")
+    bagSugar.setName("Sugar")
+    bagTobacco.setName("Tobacco")
+    bagCoffee.setName("Coffee")
+    -- 编辑按钮
+    obj.editButton({
+        index          = 0,
+        click_function = "nextAnnual",
+        position       = { 0, 0.1, 0.75 },
+        width          = 150,
+        font_size      = 50,
+        label          = "next"
+    })
+    -- 回收货物 & 殖民 & 农场
+    recycleWithName(getObjectsWithTag("goods"))
+    recycle(bagColonist, getObjectsWithTag("colonists"))
+    local hitLits = getHitListByBoxCast({ 1.00, -2.97, 18.50 }, { 10, 5, 1 })
+    local objList = filterListByTag(hitLits, "plantation")
+    recycle(bagPlantation, objList)
+    -- 移动袋子
+    bagCorn.setPositionSmooth({ 2, 2, -3 }, false, true)
+    bagIndigo.setPositionSmooth({ 4, 2, -3 }, false, true)
+    bagSugar.setPositionSmooth({ 6, 2, -3 }, false, true)
+    bagTobacco.setPositionSmooth({ 8, 2, -3 }, false, true)
+    bagCoffee.setPositionSmooth({ 10, 2, -3 }, false, true)
+    bagColonist.setPositionSmooth({ -8, 2, -3 }, false, true)
+    -- 补充农场
+    supplyPlantation()
+    -- 补充殖民
+    supplyColonistsWithNum(#playerColorList)
 end
 
-----#include !\TTS_Splendor\Scripts\global
+-- 通过名称回收对象至对应袋子
+function recycleWithName(objList)
+    for _, obj in pairs(objList) do
+        getBagWithName(obj.getName()).putObject(obj)
+    end
+end
+
+-- 回收对象至指定容器
+function recycle(container, objList)
+    for _, obj in ipairs(objList) do
+        container.putObject(obj)
+    end
+end
+
+-- 通过名称获取袋子对象
+function getBagWithName(name)
+    for _, obj in ipairs(getObjects()) do
+        if obj.getName() == name and obj.type == "Bag" then
+            return obj
+        end
+    end
+end
+
+-- 补充殖民（玩家数）至指定坐标附近
+function supplyColonistsWithNum(num)
+    if #bagColonist.getObjects() < num then
+        return true
+    end
+    for i = 1, num do
+        takeObjToPos(bagColonist, colonistHouse.getPosition())
+    end
+end
+
+-- 从容器中取出对象至指定坐标附近
+function takeObjToPos(container, pos)
+    container.takeObject({
+        position = {
+            pos[1] + math.random() - 1,
+            math.random() + 1,
+            pos[3] + math.random() - 1
+        }
+    })
+end
+
+-- 移动对象至指定坐标附近
+function moveObjToPos(obj, pos)
+    obj.setPositionSmooth(
+        {
+            pos[1] + math.random() - 1,
+            math.random() + 1,
+            pos[3] + math.random() - 1
+        },
+        false, true)
+end
+
+-- 补充农场
+function supplyPlantation()
+    if #bagPlantation.getObjects() < #playerColorList + 1 then
+        recycle(bagPlantation, getObjectsWithTag("chip ignore"))
+    end
+
+    local num = math.min(#bagPlantation.getObjects(), #playerColorList + 1)
+
+    bagPlantation.shuffle()
+
+    for i = 1, num do
+        bagPlantation.takeObject({
+            position = { i * 2 - 5, 2, 18.5 }
+        }).addTag("chip remain")
+    end
+end
+
+-- 下一年
+function nextAnnual(obj, currColor)
+    -- 移动 governor 至下一位玩家
+    local nextColor = getNextColor(currColor)
+    obj.setPositionSmooth(playerList[nextColor].governor, false, true)
+    -- role remain 标签对象设置 1 doubloon
+    for _, obj in ipairs(getObjectsWithTag("role remain")) do
+        bag1Doubloon.takeObject({
+            position = { obj.getPosition().x, 2, obj.getPosition().z }
+        })
+    end
+    -- 移动 role select 标签对象至初始位置
+    -- 所有 role select 标签替换 role remain 标签
+    for _, obj in ipairs(getObjectsWithTag("role select")) do
+        obj.setPositionSmooth(rolePos[obj.getName()], false, true)
+        obj.removeTag("role select")
+        obj.addTag("role remain")
+    end
+    -- 清空运输船如果已满
+    local topShipGoodsList = getObjListWithShip(topShip)
+    local midShipGoodsList = getObjListWithShip(midShip)
+    local botShipGoodsList = getObjListWithShip(botShip)
+    local topShipGoodsLimit = #playerColorList + 3
+    local midShipGoodsLimit = #playerColorList + 2
+    local botShipGoodsLimit = #playerColorList + 1
+    if #topShipGoodsList == topShipGoodsLimit then
+        recycleWithName(topShipGoodsList)
+    end
+    if #midShipGoodsList == midShipGoodsLimit then
+        recycleWithName(midShipGoodsList)
+    end
+    if #botShipGoodsList == botShipGoodsLimit then
+        recycleWithName(botShipGoodsList)
+    end
+    -- 清空交易所如果已满
+    local tradingHouseGoodsList = getObjListWithTrade(tradingHouse)
+    if #tradingHouseGoodsList == 4 then
+        recycleWithName(tradingHouseGoodsList)
+    end
+    -- 弃牌区坐标
+    local pos = { x = 20, y = 2, z = 10 }
+    -- 清理农场
+    local hitLits = getHitListByBoxCast({ 1.00, -2.97, 18.50 }, { 10, 5, 1 })
+    local objList = filterListByTag(hitLits, "chip remain")
+    for _, obj in ipairs(objList) do
+        obj.removeTag("chip remain")
+        obj.addTag("chip ignore")
+        obj.setPositionSmooth(pos, false, true)
+    end
+    -- 整理农场
+    local plantationList = getObjectsWithTag("chip ignore")
+    for i = 1, #plantationList do
+        plantationList[i].setPositionSmooth({
+            pos.x + i % 5 * 2,
+            pos.y,
+            pos.z - i / 5 * 2
+        }, false, true)
+    end
+    -- 补充农场
+    supplyPlantation()
+end
+
+-- 获取运输船对象列表
+function getObjListWithShip(ship)
+    -- 非空校验
+    if ship == nil then
+        return {}
+    end
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(ship.getPosition(), { 4, 2, 2 })
+    -- 标签过滤
+    return filterListByTag(hitList, "goods")
+end
+
+-- 获取交易所对象列表
+function getObjListWithTrade(obj)
+    local hitList = getHitListByBoxCast(obj.getPosition(), { 2, 2, 4 })
+    return filterListByTag(hitList, "goods")
+end
+
+-- 碰撞检测获取碰撞列表
+function getHitListByBoxCast(pos, size)
+    local hitList = Physics.cast({
+        origin       = pos,
+        direction    = { 0, 1, 0 },
+        type         = 3,
+        size         = size,
+        max_distance = 0,
+        debug        = true
+    })
+    local objList = {}
+    for _, hitObj in ipairs(hitList) do
+        table.insert(objList, hitObj.hit_object)
+    end
+    return objList
+end
+
+-- 获取下一位玩家颜色
+function getNextColor(currColor)
+    for i = 1, #playerColorList do
+        if playerColorList[i] == currColor then
+            return playerColorList[i % #playerColorList + 1]
+        end
+    end
+end
+
+-- 分配殖民
+function assignColonists(obj, color)
+    -- 市长特权
+    if #bagColonist.getObjects() ~= 0 then
+        bagColonist.takeObject({ position = playerList[color].assign })
+    end
+    -- 分配殖民
+    local objList = getObjListFromZoneWithTag(colonistShipZone, "colonists")
+    for _, obj in ipairs(objList) do
+        moveObjToPos(obj, playerList[color].assign)
+        color = getNextColor(color)
+    end
+end
+
+-- 补充殖民
+function supplyColonists()
+    -- 计算建筑区空缺与殖民总数
+    local cnt = countCirclesAndColonistsWithGlobal()
+    -- 差值 > 玩家数 ? 差值 : 玩家数
+    local num = math.max(cnt.circles - cnt.colonists, #playerColorList)
+    -- 补充殖民
+    if supplyColonistsWithNum(num) then
+        broadcastToAll("game over!", Color.White)
+    end
+end
+
+-- 计算全局建筑物空缺与殖民数量
+function countCirclesAndColonistsWithGlobal()
+    local circles, colonists
+    for _, color in ipairs(playerColorList) do
+        local cnt = countCirclesAndColonistsWithColor(color)
+        circles = (circles or 0) + (cnt.circles or 0)
+        colonists = (colonists or 0) + (cnt.colonists or 0)
+    end
+    return { circles = circles, colonists = colonists }
+end
+
+-- 计算玩家建筑物空缺与殖民数量
+function countCirclesAndColonistsWithColor(color)
+    local circles, colonists
+    local objList = getObjListFromBuildWithColor(color)
+    for _, obj in ipairs(objList) do
+        if obj.hasTag("colonists") then
+            colonists = (colonists or 0) + 1
+        end
+        if obj.hasTag("small building") or obj.hasTag("large building") then
+            circles = (circles or 0) + buildingList[string.gsub(obj.getName(), "%s", "")].circle
+        end
+    end
+    return { circles = circles, colonists = colonists }
+end
+
+-- 获取玩家建筑区对象列表
+function getObjListFromBuildWithColor(color)
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].building, { 10.9, 5, 5 })
+    -- 标签过滤
+    local smallBuildList = filterListByTag(hitList, "small building")
+    local largeBuildList = filterListByTag(hitList, "large building")
+    return concatList(smallBuildList, largeBuildList)
+end
+
+-- 拼接表
+function concatList(a, b)
+    for _, obj in ipairs(b) do
+        table.insert(a, obj)
+    end
+    return a
+end
+
+-- 生产
+function produce(obj, color)
+    -- 工匠特权
+    for i = 2, #goodsList do
+        if obj.hasTag(goodsList[i].tag) then
+            takeObjToPos(getBagWithName(goodsList[i].tag), playerList[color].assign)
+        end
+    end
+    -- 遍历玩家分配货物
+    for i = 1, #playerColorList do
+        for i = 2, #goodsList do
+            local tag = goodsList[i].tag
+            local num = math.min(#getBagWithName(tag).getObjects(), calcBeltlineWithTag(color, tag))
+            print(color .. ":" .. tag .. ":" .. num)
+            assignGoodsWithNum(getBagWithName(tag), color, num)
+        end
+        color = getNextColor(color)
+    end
+end
+
+-- 计算指定玩家指定标签生效产线数量
+function calcBeltlineWithTag(color, tag)
+    local plantationNum, buildingNum
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), { 18, 5, 12 })
+    -- 标签过滤
+    local plantationList = filterListByTag(filterListByTag(hitList, "plantation"), tag)
+    -- 循环碰撞检测并计数
+    for _, plantation in ipairs(plantationList) do
+        local castList = getHitListByBoxCast(plantation.getPosition(), { 1.5, 1.5, 1.5 })
+        plantationNum = (plantationNum or 0) + #filterListByTag(castList, "colonists")
+    end
+    -- 标签过滤
+    local buildingList = filterListByTag(filterListByTag(hitList, "small building"), tag)
+    -- 循环碰撞检测并计数
+    for _, building in ipairs(buildingList) do
+        local castList = getHitListByBoxCast(building.getPosition(), { 2.5, 1.5, 1.5 })
+        buildingNum = (buildingNum or 0) + #filterListByTag(castList, "colonists")
+    end
+
+    if tag == "Corn" then
+        return plantationNum or 0
+    else
+        return math.min(plantationNum or 0, buildingNum or 0)
+    end
+end
+
+-- 指定玩家分配指定数量的货物
+function assignGoodsWithNum(container, color, num)
+    if num == 0 then
+        return nil
+    end
+    for i = 1, num do
+        takeObjToPos(container, playerList[color].assign)
+    end
+end
+
+-- 回收 doubloon
+function pay(obj, color)
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].pay, { 8, 8, 6 })
+    -- 回收资源
+    recycle(bag1Doubloon, filterListByTag(hitList, "Doubloon1"))
+    recycle(bag5Doubloon, filterListByTag(hitList, "Doubloon5"))
+    recycleWithName(filterListByTag(hitList, "goods"))
+end
+
+-- 通过标签过滤列表
+function filterListByTag(hitList, tag)
+    local objList = {}
+    for _, hit in ipairs(hitList) do
+        if hit.hasTag(tag) then
+            table.insert(objList, hit)
+        end
+    end
+    return objList
+end
+
+-- 计算分数&财富
+function calcScoreAndMoney(color)
+    -- 碰撞检测
+    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), { 20, 5, 20 })
+    -- 标签过滤并计算分数
+    local score = #filterListByTag(hitList, "VP1") + #filterListByTag(hitList, "VP5") * 5
+    -- 标签过滤并计算财富
+    local money = #filterListByTag(hitList, "Doubloon1") + #filterListByTag(hitList, "Doubloon5") * 5
+    -- 文本显示
+    playerList[color].text.setValue("score: " .. tostring(score) .. "    " .. "money: " .. tostring(money))
+end
+
+-- 下一种货物
+function nextGoods(obj)
+    for i = 1, #goodsList do
+        if obj.hasTag(goodsList[i].tag) then
+            -- 替换标签
+            obj.removeTag(goodsList[i].tag)
+            obj.addTag(goodsList[i % #goodsList + 1].tag)
+            -- 删除按钮
+            obj.removeButton(1)
+            -- 创建按钮
+            obj.createButton({
+                click_function = "nextGoods",
+                position       = { 0.3, 0.1, 0.30 },
+                color          = Color.fromString(goodsList[i % #goodsList + 1].color),
+                hover_color    = Color.fromString(goodsList[i % #goodsList + 1].color),
+                press_color    = Color.fromString(goodsList[i % #goodsList + 1].color)
+            })
+            return
+        end
+    end
+end
+
+-- 判断是否为农场区
+function isPlantationZone(zone)
+    if
+        zone ~= plantationZoneYellow
+        and
+        zone ~= plantationZoneBlue
+        and
+        zone ~= plantationZoneOrange
+        and
+        zone ~= plantationZoneWhite
+        and
+        zone ~= plantationZoneBrown
+    then
+        return false
+    else
+        return true
+    end
+end
+
+-- 拿取角色热键
+addHotkey("take", take)
