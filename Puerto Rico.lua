@@ -299,7 +299,6 @@ function onObjectEnterZone(zone, obj)
     -- 删除标签
     if isPlantationZone(zone) then
         obj.removeTag("chip remain")
-        obj.removeTag("plantation")
     end
 end
 
@@ -512,7 +511,9 @@ function nextAnnual(obj, currColor)
     -- 弃牌区坐标
     local pos = { x = 20, y = 2, z = 10 }
     -- 清理农场
-    for _, obj in ipairs(getObjectsWithTag("chip remain")) do
+    local hitLits = getHitListByBoxCast(nil, nil)
+    local objList = filterListByTag(hitLits, "chip remain")
+    for _, obj in ipairs(objList) do
         obj.removeTag("chip remain")
         obj.addTag("chip ignore")
         obj.setPositionSmooth(pos, false, true)
@@ -539,13 +540,13 @@ function getObjListWithShip(ship)
     -- 碰撞检测
     local hitList = getHitListByBoxCast(ship.getPosition(), { 4, 2, 2 })
     -- 标签过滤
-    return getObjListFromHitList(hitList, "goods")
+    return filterListByTag(hitList, "goods")
 end
 
 -- 获取交易所对象列表
 function getObjListWithTrade(obj)
     local hitList = getHitListByBoxCast(obj.getPosition(), { 2, 2, 4 })
-    return getObjListFromHitList(hitList, "goods")
+    return filterListByTag(hitList, "goods")
 end
 
 -- 碰撞检测获取碰撞列表
@@ -631,8 +632,8 @@ function getObjListFromBuildWithColor(color)
     -- 碰撞检测
     local hitList = getHitListByBoxCast(playerList[color].building, { 10.9, 5, 5 })
     -- 标签过滤
-    local smallBuildList = getObjListFromHitList(hitList, "small building")
-    local largeBuildList = getObjListFromHitList(hitList, "large building")
+    local smallBuildList = filterListByTag(hitList, "small building")
+    local largeBuildList = filterListByTag(hitList, "large building")
     return concatList(smallBuildList, largeBuildList)
 end
 
@@ -647,36 +648,43 @@ end
 -- 生产
 function produce(obj, color)
     -- 工匠特权
-    for _, good in ipairs(goodsList) do
-        if obj.hasTag(good.tag) then
-            getBagWithName("bag" .. tag)
+    for _, goods in ipairs(goodsList) do
+        if obj.hasTag(goods.tag) then
+            getBagWithName("bag" .. goods.tag).takeObject({ position = playerList[color].assign })
         end
     end
+    -- 遍历玩家分配货物
     for i = 1, #playerColorList do
-        -- 计算当前玩家生效玉米数量
-        -- 计算当前玩家生效靛蓝数量
-        -- 计算当前玩家生效砂糖数量
-        -- 计算当前玩家生效烟草数量
-        -- 计算当前玩家生效咖啡数量
-        -- 分配玉米 math.min(供应量, 剩余量)
-        -- 分配靛蓝 math.min(供应量, 剩余量)
-        -- 分配砂糖 math.min(供应量, 剩余量)
-        -- 分配烟草 math.min(供应量, 剩余量)
-        -- 分配咖啡 math.min(供应量, 剩余量)
+        for i = 2, #goodsList do
+            local tag = goodsList[i].tag
+            local num = math.min(#getBagWithName("bag" .. tag).getObjects(), calcBeltlineWithTag(color, tag))
+            for i = 1, num do
+                getBagWithName("bag" .. tag).takeObject({ position = playerList[color].assign })
+            end
+        end
         color = getNextColor(color)
     end
 end
 
--- 计算指定玩家生效流水数量
-function calcPlantationAndBuildingWithColonist(color, plantationTag, buildingTag)
+-- 计算指定玩家指定标签生效产线数量
+function calcBeltlineWithTag(color, tag)
     local plantationNum, buildingNum
     -- 碰撞检测
-    -- 农场标签过滤
+    local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), nil)
+    -- 标签过滤
+    local plantationList = filterListByTag(filterListByTag(hitList, "plantation"), tag)
     -- 循环碰撞检测并计数
-    plantationNum = (plantationNum or 0) + 1
-    -- 建筑标签过滤
+    for _, plantation in ipairs(plantationList) do
+        local castList = getHitListByBoxCast(plantation.getPosition(), { 1, 1, 1 })
+        plantationNum = (plantationNum or 0) + #filterListByTag(castList, "colonist")
+    end
+    -- 标签过滤
+    local buildingList = filterListByTag(filterListByTag(hitList, "small building"), tag)
     -- 循环碰撞检测并计数
-    buildingNum = (buildingNum or 0) + 1
+    for _, building in ipairs(buildingList) do
+        local castList = getHitListByBoxCast(building.getPosition(), { 2, 1, 1 })
+        buildingNum = (buildingNum or 0) + #filterListByTag(castList, "colonist")
+    end
 
     return math.min(plantationNum, buildingNum)
 end
@@ -686,12 +694,12 @@ function pay(obj, color)
     -- 碰撞检测
     local hitList = getHitListByBoxCast(playerList[color].pay, { 8, 8, 6 })
     -- 回收资源
-    recycle(bag1Doubloon, getObjListFromHitList(hitList, "Doubloon1"))
-    recycle(bag5Doubloon, getObjListFromHitList(hitList, "Doubloon5"))
+    recycle(bag1Doubloon, filterListByTag(hitList, "Doubloon1"))
+    recycle(bag5Doubloon, filterListByTag(hitList, "Doubloon5"))
 end
 
--- 通过标签过滤碰撞列表
-function getObjListFromHitList(hitList, tag)
+-- 通过标签过滤列表
+function filterListByTag(hitList, tag)
     local objList = {}
     for _, hit in ipairs(hitList) do
         if hit.hasTag(tag) then
@@ -706,9 +714,9 @@ function calcScoreAndMoney(color)
     -- 碰撞检测
     local hitList = getHitListByBoxCast(playerList[color].board.getPosition(), { 20, 5, 20 })
     -- 标签过滤并计算分数
-    local score = #getObjListFromHitList(hitList, "VP1") + #getObjListFromHitList(hitList, "VP5") * 5
+    local score = #filterListByTag(hitList, "VP1") + #filterListByTag(hitList, "VP5") * 5
     -- 标签过滤并计算财富
-    local money = #getObjListFromHitList(hitList, "Doubloon1") + #getObjListFromHitList(hitList, "Doubloon5") * 5
+    local money = #filterListByTag(hitList, "Doubloon1") + #filterListByTag(hitList, "Doubloon5") * 5
     -- 文本显示
     playerList[color].text.setValue("score: " .. tostring(score) .. "    " .. "money: " .. tostring(money))
 end
