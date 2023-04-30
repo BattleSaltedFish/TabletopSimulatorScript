@@ -418,18 +418,11 @@ function setup(obj)
     colorList = { "Brown", "Orange", "White", "Blue", "Yellow" }
     playerColorList = {}
     for _, player in ipairs(colorList) do
-        print("undefined")
         for _, color in ipairs(getSeatedPlayers()) do
             if player == color then
                 table.insert(playerColorList, color)
             end
         end
-    end
-    for _, color in ipairs(playerColorList) do
-        print(color .. "---")
-    end
-    for _, color in ipairs(getSeatedPlayers()) do
-        print(color .. ":")
     end
     -- 生成袋子
     bagCorn     = spawnObject({ type = "Bag", position = { 2, 2, -9 } })
@@ -754,7 +747,6 @@ function produce(obj, color)
         for i = 2, #goodsList do
             local tag = goodsList[i].tag
             local num = math.min(#getBagWithName(tag).getObjects(), calcBeltlineWithTag(color, tag))
-            print(color .. ":" .. tag .. ":" .. num)
             assignGoodsWithNum(getBagWithName(tag), color, num)
         end
         color = getNextColor(color)
