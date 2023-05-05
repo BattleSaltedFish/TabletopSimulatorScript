@@ -232,7 +232,7 @@ function onLoad()
     })
     -- 开拓者
     settler.createButton({
-        click_function = "take",
+        click_function = "takeSettler",
         position       = { 0, 0.1, 0.75 },
         width          = 600,
         height         = 240,
@@ -385,9 +385,47 @@ function takeCraftsman(obj, color)
     take(obj, color)
     obj.editButton({
         click_function = "produce",
-        font_size = 100,
-        label = "produce"
+        font_size      = 100,
+        label          = "produce"
     })
+end
+
+-- 开拓者
+function takeSettler(obj, color)
+    take(obj, color)
+    obj.editButton({
+        click_function = "clearPlantation",
+        label          = "clear"
+    })
+end
+
+-- 清理农场
+function clearPlantation(obj, color)
+    obj.editButton({
+        click_function = "takeSettler",
+        label          = "take"
+    })
+    -- 弃牌区坐标
+    local pos = { x = 20, y = 2, z = 10 }
+    -- 清理农场
+    local hitLits = getHitListByBoxCast({ 2.00, -2.97, 18.50 }, { 11, 5, 1 })
+    local objList = filterListByTag(hitLits, "chip remain")
+    for _, obj in ipairs(objList) do
+        obj.removeTag("chip remain")
+        obj.addTag("chip ignore")
+        obj.setPositionSmooth(pos, false, true)
+    end
+    -- 整理农场
+    local plantationList = getObjectsWithTag("chip ignore")
+    for i = 1, #plantationList do
+        plantationList[i].setPositionSmooth({
+            pos.x + i % 5 * 2,
+            pos.y,
+            pos.z - i / 5 * 2
+        }, false, true)
+    end
+    -- 补充农场
+    supplyPlantation()
 end
 
 -- 拿取角色
@@ -583,27 +621,6 @@ function nextAnnual(obj, currColor)
         obj.removeTag("role select")
         obj.addTag("role remain")
     end
-    -- 弃牌区坐标
-    local pos = { x = 20, y = 2, z = 10 }
-    -- 清理农场
-    local hitLits = getHitListByBoxCast({ 2.00, -2.97, 18.50 }, { 11, 5, 1 })
-    local objList = filterListByTag(hitLits, "chip remain")
-    for _, obj in ipairs(objList) do
-        obj.removeTag("chip remain")
-        obj.addTag("chip ignore")
-        obj.setPositionSmooth(pos, false, true)
-    end
-    -- 整理农场
-    local plantationList = getObjectsWithTag("chip ignore")
-    for i = 1, #plantationList do
-        plantationList[i].setPositionSmooth({
-            pos.x + i % 5 * 2,
-            pos.y,
-            pos.z - i / 5 * 2
-        }, false, true)
-    end
-    -- 补充农场
-    supplyPlantation()
 end
 
 -- 获取运输船对象列表
