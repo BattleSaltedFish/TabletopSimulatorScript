@@ -115,7 +115,7 @@ buildingList = {
     CoffeeRoaster    = { circle = 2, score = 3 },
     SmallMarket      = { circle = 1, score = 1 },
     ConstructionHut  = { circle = 1, score = 1 },
-    Hacienda         = { circle = 1, score = 1 },
+    Hacidena         = { circle = 1, score = 1 },
     SmallWarehouse   = { circle = 1, score = 1 },
     BoardingHouse    = { circle = 1, score = 2 },
     CommercialOffice = { circle = 1, score = 2 },
@@ -453,7 +453,7 @@ end
 -- 设置
 function setup(obj)
     -- 玩家颜色列表
-    colorList = { "Brown", "Orange", "White", "Blue", "Yellow" }
+    colorList = { "Yellow", "Blue", "White", "Orange", "Brown" }
     playerColorList = {}
     for _, player in ipairs(colorList) do
         for _, color in ipairs(getSeatedPlayers()) do
